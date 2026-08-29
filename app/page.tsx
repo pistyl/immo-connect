@@ -973,7 +973,7 @@ export default function HomePage() {
                   <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl text-center">
                     <span className="text-[11px] text-slate-400 uppercase font-semibold block">Biens Gérés</span>
                     <span className="text-base sm:text-lg font-black text-white mt-1 block">
-                      {properties.filter((p) => p.ownerId === currentUser.id || p.ownerName === currentUser.name || p.ownerId === 'usr_landlord_mamadou' || !p.ownerId).length}
+                      {properties.filter((p) => !p.ownerId || p.ownerId === currentUser.id || p.ownerId === 'usr_landlord_mamadou' || (p.ownerName && currentUser.name && p.ownerName.toLowerCase().includes(currentUser.name.toLowerCase()))).length}
                     </span>
                   </div>
                 </div>
@@ -994,7 +994,7 @@ export default function HomePage() {
                     </button>
                   </div>
 
-                  {properties.filter((p) => p.ownerId === currentUser.id || p.ownerName === currentUser.name || p.ownerId === 'usr_landlord_mamadou' || !p.ownerId).length === 0 ? (
+                  {properties.filter((p) => !p.ownerId || p.ownerId === currentUser.id || p.ownerId === 'usr_landlord_mamadou' || (p.ownerName && currentUser.name && p.ownerName.toLowerCase().includes(currentUser.name.toLowerCase()))).length === 0 ? (
                     <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 text-center space-y-3">
                       <p className="text-xs text-slate-400">Vous n'avez aucune propriété enregistrée.</p>
                       <button
@@ -1011,7 +1011,7 @@ export default function HomePage() {
                   ) : (
                     <div className="space-y-3">
                       {properties
-                        .filter((p) => p.ownerId === currentUser.id || p.ownerName === currentUser.name || p.ownerId === 'usr_landlord_mamadou' || !p.ownerId)
+                        .filter((p) => !p.ownerId || p.ownerId === currentUser.id || p.ownerId === 'usr_landlord_mamadou' || (p.ownerName && currentUser.name && p.ownerName.toLowerCase().includes(currentUser.name.toLowerCase())))
                         .map((p) => (
                           <div
                             key={p.id}

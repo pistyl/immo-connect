@@ -1,0 +1,21 @@
+{
+  "name": "ImmoConnect Dakar - Gestion Locative",
+  "short_name": "ImmoConnect",
+  "description": "Application web mobile-first de gestion locative digitale à Dakar (Annonces, Bail, État des lieux, Paiement Wave & Orange Money)",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f766e",
+  "icons": [
+    {
+      "src": "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=192&q=80",
+      "sizes": "192x192",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=512&q=80",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
+}

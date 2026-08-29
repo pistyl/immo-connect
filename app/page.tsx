@@ -765,7 +765,7 @@ export default function HomePage() {
                 </div>
               </div>
             ) : (
-              /* TENANT RENT PAYMENT VIEW */
+              /* TENANT RENT & LEASE VIEW */
               <div className="space-y-6">
                 {/* Tenant Header */}
                 <div>
@@ -776,43 +776,81 @@ export default function HomePage() {
                   </div>
                   <h2 className="font-extrabold text-lg text-white flex items-center space-x-2 mt-1">
                     <CreditCard className="w-5.5 h-5.5 text-teal-400" />
-                    <span>Mes Loyers & Quittances Officielles</span>
+                    <span>Mon Bail & Mes Loyers</span>
                   </h2>
-                  <p className="text-xs text-slate-400">Règlement sécurisé par Mobile Money et téléchargement de vos justificatifs</p>
+                  <p className="text-xs text-slate-400">Consultation de votre contrat de bail digital, paiement du loyer et quittances</p>
                 </div>
 
-                {/* Tenant Summary Banner */}
-                <div className="bg-gradient-to-r from-teal-950/80 via-slate-900 to-emerald-950/80 border border-teal-800/80 rounded-3xl p-5 space-y-4 shadow-xl">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <span className="text-[11px] text-slate-400 uppercase font-semibold block">Votre Bail Actuel</span>
-                      <h3 className="font-extrabold text-base text-white mt-1">
-                        {leases[0]?.propertyTitle || 'Appartement F3 Mermoz'}
-                      </h3>
-                      <p className="text-xs text-teal-300 font-medium">Bailleur: {leases[0]?.landlordName || 'Mamadou Ndiaye'}</p>
+                {/* Mon Bail Card (Embedded Lease Content for Tenant) */}
+                {leases[0] && (
+                  <div className="bg-gradient-to-br from-teal-950/80 via-slate-900 to-emerald-950/80 border border-teal-800/80 rounded-3xl p-5 space-y-4 shadow-xl">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <div className="flex items-center space-x-2">
+                          <span className="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-800 font-bold px-2.5 py-0.5 rounded-full">
+                            Bail Actif • {leases[0].propertyNeighborhood || 'Mermoz'}
+                          </span>
+                          <span className="text-[10px] bg-slate-800 text-slate-300 font-mono px-2 py-0.5 rounded-full">
+                            Réf: {leases[0].id}
+                          </span>
+                        </div>
+                        <h3 className="font-extrabold text-base text-white mt-2">
+                          {leases[0].propertyTitle}
+                        </h3>
+                        <p className="text-xs text-teal-300 font-medium mt-0.5">
+                          Bailleur: <strong>{leases[0].landlordName}</strong> ({leases[0].landlordPhone})
+                        </p>
+                      </div>
+
+                      <div className="text-right">
+                        <span className="text-slate-400 text-xs block">Loyer Mensuel</span>
+                        <span className="text-xl sm:text-2xl font-black text-emerald-400">
+                          {formatFCFA(leases[0].monthlyRent)}
+                        </span>
+                      </div>
                     </div>
 
-                    <div className="text-right">
-                      <span className="text-slate-400 text-xs block">Loyer Mensuel</span>
-                      <span className="text-xl sm:text-2xl font-black text-emerald-400">
-                        {formatFCFA(leases[0]?.monthlyRent || 250000)}
-                      </span>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs bg-slate-950/60 p-3.5 rounded-2xl border border-slate-800/80">
+                      <div>
+                        <span className="text-slate-400 block text-[11px]">Dépôt de Garantie</span>
+                        <span className="font-bold text-white">{formatFCFA(leases[0].securityDeposit)}</span>
+                      </div>
+                      <div>
+                        <span className="text-slate-400 block text-[11px]">Prise d'effet</span>
+                        <span className="font-bold text-slate-200">
+                          {new Date(leases[0].startDate).toLocaleDateString('fr-FR')} ({leases[0].durationMonths} mois)
+                        </span>
+                      </div>
+                      <div className="col-span-2 sm:col-span-1">
+                        <span className="text-slate-400 block text-[11px]">Quittances Réglées</span>
+                        <span className="font-bold text-emerald-400">
+                          {payments.filter((p) => p.status === 'PAID').length} mois payés
+                        </span>
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="grid grid-cols-2 gap-3 text-xs bg-slate-950/60 p-3 rounded-2xl border border-slate-800/80">
-                    <div>
-                      <span className="text-slate-400 block text-[11px]">Dépôt de Garantie</span>
-                      <span className="font-bold text-white">{formatFCFA(leases[0]?.securityDeposit || 500000)}</span>
-                    </div>
-                    <div>
-                      <span className="text-slate-400 block text-[11px]">Quittances Régularisées</span>
-                      <span className="font-bold text-emerald-400">
-                        {payments.filter((p) => p.status === 'PAID').length} mois payés
-                      </span>
+                    {/* Lease & Inventory Action Buttons */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                      <button
+                        onClick={() => setActiveLeaseModal(leases[0])}
+                        className="py-3 px-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-2xl shadow-lg transition-all flex items-center justify-center space-x-2"
+                      >
+                        <FileText className="w-4 h-4" />
+                        <span>Consulter & Signer mon Bail (PDF)</span>
+                      </button>
+
+                      {inventoryReports.length > 0 && (
+                        <button
+                          onClick={() => setActiveInventoryModal(inventoryReports[0])}
+                          className="py-3 px-4 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs rounded-2xl border border-slate-700 shadow transition-all flex items-center justify-center space-x-2"
+                        >
+                          <Layers className="w-4 h-4 text-emerald-400" />
+                          <span>Voir mon État des Lieux</span>
+                        </button>
+                      )}
                     </div>
                   </div>
-                </div>
+                )}
 
                 {/* Tenant Payments List */}
                 <div className="space-y-3">

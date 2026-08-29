@@ -16,17 +16,22 @@ export const BottomNav: React.FC = () => {
   const unreadMsgCount = conversations.reduce((acc, c) => acc + c.messages.length, 0);
   const pendingPayments = payments.filter((p) => p.status === 'PENDING').length;
 
-  const tabs = [
+  const tabs = currentRole === 'LANDLORD' ? [
     { id: 'explore', label: 'Annonces', icon: Building2 },
     { id: 'messages', label: 'Messagerie', icon: MessageSquare, badge: unreadMsgCount > 0 ? unreadMsgCount : null },
     { id: 'leases', label: 'Baux & Lieux', icon: FileCheck },
     { id: 'payments', label: 'Loyers', icon: CreditCard, badge: pendingPayments > 0 ? pendingPayments : null },
-    { id: 'dashboard', label: currentRole === 'LANDLORD' ? 'Mes Biens' : 'Mon Bail', icon: LayoutDashboard },
+    { id: 'dashboard', label: 'Mes Biens', icon: LayoutDashboard },
+  ] : [
+    { id: 'explore', label: 'Annonces', icon: Building2 },
+    { id: 'messages', label: 'Messagerie', icon: MessageSquare, badge: unreadMsgCount > 0 ? unreadMsgCount : null },
+    { id: 'payments', label: 'Loyers & Bail', icon: CreditCard, badge: pendingPayments > 0 ? pendingPayments : null },
+    { id: 'dashboard', label: 'Mon Profil', icon: LayoutDashboard },
   ];
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 bg-slate-900/95 backdrop-blur-md border-t border-slate-800 text-slate-400">
-      <div className="max-w-md mx-auto grid grid-cols-5 h-14">
+      <div className={`max-w-md mx-auto grid ${currentRole === 'LANDLORD' ? 'grid-cols-5' : 'grid-cols-4'} h-14`}>
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;

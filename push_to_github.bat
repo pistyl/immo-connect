@@ -31,7 +31,7 @@ echo.
 %GIT_CMD% init
 %GIT_CMD% remote set-url origin https://github.com/pistyl/immo-connect.git || %GIT_CMD% remote add origin https://github.com/pistyl/immo-connect.git
 %GIT_CMD% add .
-%GIT_CMD% commit -m "feat: Modification & suppression de biens, gestion intégrale des loyers, quittances PDF et indicateur Supabase"
+%GIT_CMD% commit -m "fix: Correction syntaxe WavePaymentModal, séparation des espaces Loyers et quittances PDF"
 %GIT_CMD% branch -M main
 %GIT_CMD% push -u origin main
 

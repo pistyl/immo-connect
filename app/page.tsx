@@ -551,202 +551,188 @@ export default function HomePage() {
         {/* ==================================================================== */}
         {activeTab === 'payments' && (
           <div className="space-y-6 animate-in fade-in duration-200">
-            {/* Tab Header & Action Button */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-              <div>
-                <h2 className="font-extrabold text-lg text-white flex items-center space-x-2">
-                  <CreditCard className="w-5.5 h-5.5 text-emerald-400" />
-                  <span>Gestion des Loyers & Encaissements</span>
-                </h2>
-                <p className="text-xs text-slate-400">Suivi des paiements, émission d'appels de loyer et quittances numériques</p>
-              </div>
+            {currentRole === 'LANDLORD' ? (
+              /* LANDLORD RENT MANAGEMENT VIEW */
+              <div className="space-y-6">
+                {/* Landlord Header */}
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                  <div>
+                    <div className="flex items-center space-x-2">
+                      <span className="bg-amber-950 text-amber-400 border border-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">
+                        Espace Bailleur
+                      </span>
+                    </div>
+                    <h2 className="font-extrabold text-lg text-white flex items-center space-x-2 mt-1">
+                      <CreditCard className="w-5.5 h-5.5 text-emerald-400" />
+                      <span>Gestion des Loyers & Encaissements</span>
+                    </h2>
+                    <p className="text-xs text-slate-400">Suivi du patrimoine, émission d'appels de loyer et quittances numériques</p>
+                  </div>
 
-              {currentRole === 'LANDLORD' && (
-                <button
-                  onClick={() => setIsCreatePaymentOpen(true)}
-                  className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-lg transition-all flex items-center space-x-1.5 shrink-0"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>Émettre un appel de loyer</span>
-                </button>
-              )}
-            </div>
-
-            {/* Financial Summary Cards */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
-                <span className="text-[11px] text-slate-400 uppercase font-semibold block">Total Encaissé</span>
-                <span className="text-base sm:text-lg font-black text-emerald-400 mt-1 block">
-                  {formatFCFA(
-                    payments
-                      .filter((p) => p.status === 'PAID')
-                      .reduce((sum, p) => sum + p.amount, 0)
-                  )}
-                </span>
-              </div>
-
-              <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
-                <span className="text-[11px] text-slate-400 uppercase font-semibold block">En Attente</span>
-                <span className="text-base sm:text-lg font-black text-amber-400 mt-1 block">
-                  {formatFCFA(
-                    payments
-                      .filter((p) => p.status === 'PENDING')
-                      .reduce((sum, p) => sum + p.amount, 0)
-                  )}
-                </span>
-              </div>
-
-              <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
-                <span className="text-[11px] text-slate-400 uppercase font-semibold block">Appels Émis</span>
-                <span className="text-base sm:text-lg font-black text-white mt-1 block">
-                  {payments.length} quittances
-                </span>
-              </div>
-
-              <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
-                <span className="text-[11px] text-slate-400 uppercase font-semibold block">Taux Recouvrement</span>
-                <span className="text-base sm:text-lg font-black text-teal-400 mt-1 block">
-                  {payments.length > 0
-                    ? Math.round(
-                        (payments.filter((p) => p.status === 'PAID').length / payments.length) * 100
-                      )
-                    : 100}
-                  %
-                </span>
-              </div>
-            </div>
-
-            {/* Search & Filter Bar */}
-            <div className="flex flex-col sm:flex-row justify-between items-center gap-3 bg-slate-900/60 p-3 rounded-2xl border border-slate-800">
-              {/* Filter Tabs */}
-              <div className="flex space-x-1.5 w-full sm:w-auto">
-                <button
-                  onClick={() => setPaymentFilterStatus('ALL')}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                    paymentFilterStatus === 'ALL'
-                      ? 'bg-emerald-600 text-white shadow'
-                      : 'bg-slate-800 text-slate-400 hover:bg-slate-750'
-                  }`}
-                >
-                  Tous ({payments.length})
-                </button>
-                <button
-                  onClick={() => setPaymentFilterStatus('PENDING')}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                    paymentFilterStatus === 'PENDING'
-                      ? 'bg-amber-600 text-white shadow'
-                      : 'bg-slate-800 text-slate-400 hover:bg-slate-750'
-                  }`}
-                >
-                  En attente ⏳ ({payments.filter((p) => p.status === 'PENDING').length})
-                </button>
-                <button
-                  onClick={() => setPaymentFilterStatus('PAID')}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                    paymentFilterStatus === 'PAID'
-                      ? 'bg-emerald-700 text-white shadow'
-                      : 'bg-slate-800 text-slate-400 hover:bg-slate-750'
-                  }`}
-                >
-                  Payés ✓ ({payments.filter((p) => p.status === 'PAID').length})
-                </button>
-              </div>
-
-              {/* Search Bar */}
-              <div className="relative w-full sm:w-64">
-                <Search className="w-4 h-4 text-slate-500 absolute left-3 top-2.5" />
-                <input
-                  type="text"
-                  placeholder="Rechercher locataire, bien..."
-                  value={paymentSearchQuery}
-                  onChange={(e) => setPaymentSearchQuery(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
-                />
-              </div>
-            </div>
-
-            {/* Payments List */}
-            <div className="space-y-3">
-              {payments
-                .filter((pay) => {
-                  const matchesFilter =
-                    paymentFilterStatus === 'ALL' || pay.status === paymentFilterStatus;
-                  const matchesSearch =
-                    pay.propertyTitle.toLowerCase().includes(paymentSearchQuery.toLowerCase()) ||
-                    pay.tenantName.toLowerCase().includes(paymentSearchQuery.toLowerCase()) ||
-                    pay.periodMonth.toLowerCase().includes(paymentSearchQuery.toLowerCase());
-                  return matchesFilter && matchesSearch;
-                })
-                .map((pay) => (
-                  <div
-                    key={pay.id}
-                    className={`bg-slate-900 border rounded-2xl p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 shadow transition-all ${
-                      pay.status === 'PAID'
-                        ? 'border-emerald-800/60 bg-emerald-950/10'
-                        : 'border-amber-800/60 bg-amber-950/10'
-                    }`}
+                  <button
+                    onClick={() => setIsCreatePaymentOpen(true)}
+                    className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-lg transition-all flex items-center space-x-1.5 shrink-0"
                   >
-                    <div>
-                      <div className="flex items-center space-x-2 flex-wrap gap-y-1">
-                        <span className="font-extrabold text-white text-base">
-                          {formatFCFA(pay.amount)}
-                        </span>
-                        <span className="text-xs text-slate-300 font-semibold">• Loyer {pay.periodMonth}</span>
-                        {pay.status === 'PAID' ? (
-                          <span className="bg-emerald-950 text-emerald-400 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-emerald-800 flex items-center space-x-1">
-                            <CheckCircle2 className="w-3 h-3" />
-                            <span>Réglé</span>
-                          </span>
-                        ) : (
-                          <span className="bg-amber-950 text-amber-400 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-amber-800">
-                            ⏳ En attente (Échéance : {pay.dueDate})
-                          </span>
-                        )}
-                      </div>
+                    <Plus className="w-4 h-4" />
+                    <span>Émettre un appel de loyer</span>
+                  </button>
+                </div>
 
-                      <div className="text-xs text-slate-300 mt-1 font-medium">
-                        {pay.propertyTitle} — Locataire: <strong>{pay.tenantName}</strong>
-                      </div>
+                {/* Financial Summary Cards */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+                    <span className="text-[11px] text-slate-400 uppercase font-semibold block">Total Encaissé</span>
+                    <span className="text-base sm:text-lg font-black text-emerald-400 mt-1 block">
+                      {formatFCFA(
+                        payments
+                          .filter((p) => p.status === 'PAID')
+                          .reduce((sum, p) => sum + p.amount, 0)
+                      )}
+                    </span>
+                  </div>
 
-                      {pay.paidDate && (
-                        <div className="text-[11px] text-slate-400 mt-1 flex items-center space-x-1">
-                          <span>
-                            Encaissement le {new Date(pay.paidDate).toLocaleString('fr-FR')} via{' '}
-                            <strong className="text-emerald-400">
-                              {pay.method === 'WAVE' ? 'Wave Sénégal' :
-                               pay.method === 'ORANGE_MONEY' ? 'Orange Money' :
-                               pay.method === 'CASH' ? 'Espèces (Cash)' :
-                               pay.method === 'BANK_TRANSFER' ? 'Virement Bancaire' :
-                               pay.method === 'CHEQUE' ? 'Chèque Bancaire' : pay.method}
-                            </strong>
-                          </span>
-                          {pay.transactionId && (
-                            <span className="font-mono text-slate-500">({pay.transactionId})</span>
+                  <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+                    <span className="text-[11px] text-slate-400 uppercase font-semibold block">En Attente</span>
+                    <span className="text-base sm:text-lg font-black text-amber-400 mt-1 block">
+                      {formatFCFA(
+                        payments
+                          .filter((p) => p.status === 'PENDING')
+                          .reduce((sum, p) => sum + p.amount, 0)
+                      )}
+                    </span>
+                  </div>
+
+                  <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+                    <span className="text-[11px] text-slate-400 uppercase font-semibold block">Appels Émis</span>
+                    <span className="text-base sm:text-lg font-black text-white mt-1 block">
+                      {payments.length} quittances
+                    </span>
+                  </div>
+
+                  <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+                    <span className="text-[11px] text-slate-400 uppercase font-semibold block">Taux Recouvrement</span>
+                    <span className="text-base sm:text-lg font-black text-teal-400 mt-1 block">
+                      {payments.length > 0
+                        ? Math.round(
+                            (payments.filter((p) => p.status === 'PAID').length / payments.length) * 100
+                          )
+                        : 100}
+                      %
+                    </span>
+                  </div>
+                </div>
+
+                {/* Search & Filter Bar */}
+                <div className="flex flex-col sm:flex-row justify-between items-center gap-3 bg-slate-900/60 p-3 rounded-2xl border border-slate-800">
+                  <div className="flex space-x-1.5 w-full sm:w-auto">
+                    <button
+                      onClick={() => setPaymentFilterStatus('ALL')}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                        paymentFilterStatus === 'ALL'
+                          ? 'bg-emerald-600 text-white shadow'
+                          : 'bg-slate-800 text-slate-400 hover:bg-slate-750'
+                      }`}
+                    >
+                      Tous ({payments.length})
+                    </button>
+                    <button
+                      onClick={() => setPaymentFilterStatus('PENDING')}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                        paymentFilterStatus === 'PENDING'
+                          ? 'bg-amber-600 text-white shadow'
+                          : 'bg-slate-800 text-slate-400 hover:bg-slate-750'
+                      }`}
+                    >
+                      En attente ⏳ ({payments.filter((p) => p.status === 'PENDING').length})
+                    </button>
+                    <button
+                      onClick={() => setPaymentFilterStatus('PAID')}
+                      className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                        paymentFilterStatus === 'PAID'
+                          ? 'bg-emerald-700 text-white shadow'
+                          : 'bg-slate-800 text-slate-400 hover:bg-slate-750'
+                      }`}
+                    >
+                      Payés ✓ ({payments.filter((p) => p.status === 'PAID').length})
+                    </button>
+                  </div>
+
+                  <div className="relative w-full sm:w-64">
+                    <Search className="w-4 h-4 text-slate-500 absolute left-3 top-2.5" />
+                    <input
+                      type="text"
+                      placeholder="Rechercher locataire, bien..."
+                      value={paymentSearchQuery}
+                      onChange={(e) => setPaymentSearchQuery(e.target.value)}
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                </div>
+
+                {/* Payments List for Landlord */}
+                <div className="space-y-3">
+                  {payments
+                    .filter((pay) => {
+                      const matchesFilter =
+                        paymentFilterStatus === 'ALL' || pay.status === paymentFilterStatus;
+                      const matchesSearch =
+                        pay.propertyTitle.toLowerCase().includes(paymentSearchQuery.toLowerCase()) ||
+                        pay.tenantName.toLowerCase().includes(paymentSearchQuery.toLowerCase()) ||
+                        pay.periodMonth.toLowerCase().includes(paymentSearchQuery.toLowerCase());
+                      return matchesFilter && matchesSearch;
+                    })
+                    .map((pay) => (
+                      <div
+                        key={pay.id}
+                        className={`bg-slate-900 border rounded-2xl p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 shadow transition-all ${
+                          pay.status === 'PAID'
+                            ? 'border-emerald-800/60 bg-emerald-950/10'
+                            : 'border-amber-800/60 bg-amber-950/10'
+                        }`}
+                      >
+                        <div>
+                          <div className="flex items-center space-x-2 flex-wrap gap-y-1">
+                            <span className="font-extrabold text-white text-base">
+                              {formatFCFA(pay.amount)}
+                            </span>
+                            <span className="text-xs text-slate-300 font-semibold">• Loyer {pay.periodMonth}</span>
+                            {pay.status === 'PAID' ? (
+                              <span className="bg-emerald-950 text-emerald-400 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-emerald-800 flex items-center space-x-1">
+                                <CheckCircle2 className="w-3 h-3" />
+                                <span>Encaissé</span>
+                              </span>
+                            ) : (
+                              <span className="bg-amber-950 text-amber-400 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-amber-800">
+                                ⏳ En attente locataire (Échéance : {pay.dueDate})
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="text-xs text-slate-300 mt-1 font-medium">
+                            {pay.propertyTitle} — Locataire: <strong>{pay.tenantName}</strong>
+                          </div>
+
+                          {pay.paidDate && (
+                            <div className="text-[11px] text-slate-400 mt-1 flex items-center space-x-1">
+                              <span>
+                                Encaissement le {new Date(pay.paidDate).toLocaleString('fr-FR')} via{' '}
+                                <strong className="text-emerald-400">
+                                  {pay.method === 'WAVE' ? 'Wave Sénégal' :
+                                   pay.method === 'ORANGE_MONEY' ? 'Orange Money' :
+                                   pay.method === 'CASH' ? 'Espèces (Cash)' :
+                                   pay.method === 'BANK_TRANSFER' ? 'Virement Bancaire' :
+                                   pay.method === 'CHEQUE' ? 'Chèque Bancaire' : pay.method}
+                                </strong>
+                              </span>
+                              {pay.transactionId && (
+                                <span className="font-mono text-slate-500">({pay.transactionId})</span>
+                              )}
+                            </div>
                           )}
                         </div>
-                      )}
-                    </div>
 
-                    {/* Actions */}
-                    <div className="flex items-center space-x-2 w-full sm:w-auto shrink-0">
-                      {pay.status === 'PENDING' ? (
-                        <>
-                          {currentRole === 'TENANT' ? (
-                            <>
-                              <button
-                                onClick={() => setWavePayment(pay)}
-                                className="flex-1 sm:flex-none px-3.5 py-2.5 bg-sky-500 hover:bg-sky-400 text-slate-950 font-black text-xs rounded-xl shadow-lg transition-all flex items-center justify-center space-x-1"
-                              >
-                                <span>🌊 Payer avec Wave</span>
-                              </button>
-                              <button
-                                onClick={() => setOmPayment(pay)}
-                                className="flex-1 sm:flex-none px-3.5 py-2.5 bg-orange-500 hover:bg-orange-400 text-black font-black text-xs rounded-xl shadow-lg transition-all flex items-center justify-center space-x-1"
-                              >
-                                <span>🍊 Orange Money</span>
-                              </button>
-                            </>
-                          ) : (
+                        <div className="flex items-center space-x-2 w-full sm:w-auto shrink-0">
+                          {pay.status === 'PENDING' ? (
                             <>
                               <button
                                 onClick={() => setManualPayment(pay)}
@@ -764,21 +750,143 @@ export default function HomePage() {
                                 <Send className="w-3.5 h-3.5" />
                               </button>
                             </>
+                          ) : (
+                            <button
+                              onClick={() => setActiveReceiptModal(pay)}
+                              className="w-full sm:w-auto px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs rounded-xl border border-slate-700 shadow flex items-center justify-center space-x-1.5 transition-colors"
+                            >
+                              <Download className="w-4 h-4 text-emerald-400" />
+                              <span>Quittance PDF</span>
+                            </button>
                           )}
-                        </>
-                      ) : (
-                        <button
-                          onClick={() => setActiveReceiptModal(pay)}
-                          className="w-full sm:w-auto px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs rounded-xl border border-slate-700 shadow flex items-center justify-center space-x-1.5 transition-colors"
-                        >
-                          <Download className="w-4 h-4 text-emerald-400" />
-                          <span>Quittance PDF</span>
-                        </button>
-                      )}
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            ) : (
+              /* TENANT RENT PAYMENT VIEW */
+              <div className="space-y-6">
+                {/* Tenant Header */}
+                <div>
+                  <div className="flex items-center space-x-2">
+                    <span className="bg-teal-950 text-teal-400 border border-teal-800 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">
+                      Espace Locataire
+                    </span>
+                  </div>
+                  <h2 className="font-extrabold text-lg text-white flex items-center space-x-2 mt-1">
+                    <CreditCard className="w-5.5 h-5.5 text-teal-400" />
+                    <span>Mes Loyers & Quittances Officielles</span>
+                  </h2>
+                  <p className="text-xs text-slate-400">Règlement sécurisé par Mobile Money et téléchargement de vos justificatifs</p>
+                </div>
+
+                {/* Tenant Summary Banner */}
+                <div className="bg-gradient-to-r from-teal-950/80 via-slate-900 to-emerald-950/80 border border-teal-800/80 rounded-3xl p-5 space-y-4 shadow-xl">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <span className="text-[11px] text-slate-400 uppercase font-semibold block">Votre Bail Actuel</span>
+                      <h3 className="font-extrabold text-base text-white mt-1">
+                        {leases[0]?.propertyTitle || 'Appartement F3 Mermoz'}
+                      </h3>
+                      <p className="text-xs text-teal-300 font-medium">Bailleur: {leases[0]?.landlordName || 'Mamadou Ndiaye'}</p>
+                    </div>
+
+                    <div className="text-right">
+                      <span className="text-slate-400 text-xs block">Loyer Mensuel</span>
+                      <span className="text-xl sm:text-2xl font-black text-emerald-400">
+                        {formatFCFA(leases[0]?.monthlyRent || 250000)}
+                      </span>
                     </div>
                   </div>
-                ))}
-            </div>
+
+                  <div className="grid grid-cols-2 gap-3 text-xs bg-slate-950/60 p-3 rounded-2xl border border-slate-800/80">
+                    <div>
+                      <span className="text-slate-400 block text-[11px]">Dépôt de Garantie</span>
+                      <span className="font-bold text-white">{formatFCFA(leases[0]?.securityDeposit || 500000)}</span>
+                    </div>
+                    <div>
+                      <span className="text-slate-400 block text-[11px]">Quittances Régularisées</span>
+                      <span className="font-bold text-emerald-400">
+                        {payments.filter((p) => p.status === 'PAID').length} mois payés
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Tenant Payments List */}
+                <div className="space-y-3">
+                  <h3 className="font-bold text-sm text-white">Historique de vos Échéances de Loyer</h3>
+                  {payments.map((pay) => (
+                    <div
+                      key={pay.id}
+                      className={`bg-slate-900 border rounded-2xl p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 shadow ${
+                        pay.status === 'PAID'
+                          ? 'border-emerald-800/60 bg-emerald-950/10'
+                          : 'border-amber-800/60 bg-amber-950/10 animate-pulse'
+                      }`}
+                    >
+                      <div>
+                        <div className="flex items-center space-x-2">
+                          <span className="font-extrabold text-white text-base">
+                            {formatFCFA(pay.amount)}
+                          </span>
+                          <span className="text-xs text-slate-300 font-semibold">• Loyer {pay.periodMonth}</span>
+                          {pay.status === 'PAID' ? (
+                            <span className="bg-emerald-950 text-emerald-400 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-emerald-800 flex items-center space-x-1">
+                              <CheckCircle2 className="w-3 h-3" />
+                              <span>Réglé</span>
+                            </span>
+                          ) : (
+                            <span className="bg-amber-950 text-amber-400 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-amber-800">
+                              ⏳ En attente de votre règlement (Échéance : {pay.dueDate})
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-xs text-slate-300 mt-1 font-medium">{pay.propertyTitle}</div>
+                        {pay.paidDate && (
+                          <div className="text-[11px] text-slate-400 mt-0.5">
+                            Paiement effectué le {new Date(pay.paidDate).toLocaleString('fr-FR')} via{' '}
+                            <strong className="text-emerald-400">
+                              {pay.method === 'WAVE' ? 'Wave Sénégal' :
+                               pay.method === 'ORANGE_MONEY' ? 'Orange Money' :
+                               pay.method === 'CASH' ? 'Espèces' : pay.method}
+                            </strong> ({pay.transactionId})
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex items-center space-x-2 w-full sm:w-auto shrink-0">
+                        {pay.status === 'PENDING' ? (
+                          <div className="flex space-x-2 w-full sm:w-auto">
+                            <button
+                              onClick={() => setWavePayment(pay)}
+                              className="flex-1 sm:flex-none px-3.5 py-2.5 bg-sky-500 hover:bg-sky-400 text-slate-950 font-black text-xs rounded-xl shadow-lg transition-all flex items-center justify-center space-x-1"
+                            >
+                              <span>🌊 Payer avec Wave</span>
+                            </button>
+                            <button
+                              onClick={() => setOmPayment(pay)}
+                              className="flex-1 sm:flex-none px-3.5 py-2.5 bg-orange-500 hover:bg-orange-400 text-black font-black text-xs rounded-xl shadow-lg transition-all flex items-center justify-center space-x-1"
+                            >
+                              <span>🍊 Orange Money</span>
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => setActiveReceiptModal(pay)}
+                            className="w-full sm:w-auto px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs rounded-xl border border-slate-700 shadow flex items-center justify-center space-x-1.5 transition-colors"
+                          >
+                            <Download className="w-4 h-4 text-emerald-400" />
+                            <span>Télécharger Quittance</span>
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 

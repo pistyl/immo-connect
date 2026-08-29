@@ -112,14 +112,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       console.warn('LocalStorage initialization warning:', e);
     }
 
-    // Fetch from Supabase PostgreSQL if configured
+    // Fetch live data from Supabase PostgreSQL if configured
     const loadFromSupabase = async () => {
       if (!isSupabaseConfigured()) return;
       const client = getSupabase();
       if (!client) return;
 
       try {
-        // Fetch properties
+        // 1. Fetch properties
         const { data: dbProps, error: propErr } = await client.from('properties').select('*');
         if (!propErr && dbProps && dbProps.length > 0) {
           const mappedProps: Property[] = dbProps.map((p: any) => ({
@@ -146,7 +146,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           setSupabaseConnected(true);
         }
 
-        // Fetch leases
+        // 2. Fetch leases
         const { data: dbLeases, error: leaseErr } = await client.from('leases').select('*');
         if (!leaseErr && dbLeases && dbLeases.length > 0) {
           const mappedLeases: Lease[] = dbLeases.map((l: any) => ({
@@ -174,7 +174,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           setLeases(mappedLeases);
         }
 
-        // Fetch payments
+        // 3. Fetch payments
         const { data: dbPayments, error: payErr } = await client.from('payments').select('*');
         if (!payErr && dbPayments && dbPayments.length > 0) {
           const mappedPayments: Payment[] = dbPayments.map((p: any) => ({
@@ -194,6 +194,48 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             receiptUrl: p.receipt_url,
           }));
           setPayments(mappedPayments);
+        }
+
+        // 4. Fetch inventory reports
+        const { data: dbInv, error: invErr } = await client.from('inventory_reports').select('*');
+        if (!invErr && dbInv && dbInv.length > 0) {
+          const mappedInv: InventoryReport[] = dbInv.map((i: any) => ({
+            id: i.id,
+            leaseId: i.lease_id,
+            propertyTitle: i.property_title,
+            propertyRegion: i.property_region,
+            propertyNeighborhood: i.property_neighborhood,
+            tenantName: i.tenant_name,
+            landlordName: i.landlord_name,
+            dateEntry: i.date_entry,
+            dateExit: i.date_exit,
+            type: i.type,
+            items: i.items || [],
+            isEntrySigned: i.is_entry_signed,
+            isExitSigned: i.is_exit_signed,
+            entrySignatureDate: i.entry_signature_date,
+            exitSignatureDate: i.exit_signature_date,
+            pdfUrl: i.pdf_url,
+          }));
+          setInventoryReports(mappedInv);
+        }
+
+        // 5. Fetch conversations
+        const { data: dbConvs, error: convErr } = await client.from('conversations').select('*');
+        if (!convErr && dbConvs && dbConvs.length > 0) {
+          const mappedConvs: Conversation[] = dbConvs.map((c: any) => ({
+            id: c.id,
+            propertyId: c.property_id,
+            propertyTitle: c.property_title,
+            propertyPhoto: c.property_photo,
+            landlordId: c.landlord_id,
+            tenantId: c.tenant_id,
+            landlordName: c.landlord_name,
+            tenantName: c.tenant_name,
+            messages: c.messages || [],
+            lastUpdated: c.last_updated,
+          }));
+          setConversations(mappedConvs);
         }
       } catch (err) {
         console.warn('Supabase fetch notice:', err);
@@ -222,7 +264,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
   }, []);
 
-  // Save changes to localStorage
+  // Save changes to localStorage as backup
   useEffect(() => {
     try {
       localStorage.setItem('immo_role', currentRole);
@@ -261,6 +303,21 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       localStorage.setItem('immo_user', JSON.stringify(updatedUser));
     } catch (e) {}
 
+    // Persist profile to Supabase
+    const client = getSupabase();
+    if (client) {
+      client.from('profiles').insert([{
+        id: updatedUser.id,
+        phone: updatedUser.phone,
+        name: updatedUser.name,
+        role: updatedUser.role,
+        verification_status: updatedUser.verificationStatus,
+        created_at: updatedUser.createdAt,
+      }]).then(({ error }) => {
+        if (error) console.warn('Supabase profile sync warning:', error);
+      });
+    }
+
     setIsAuthModalOpen(false);
   };
 
@@ -283,12 +340,25 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const currentUser = currentRole === 'LANDLORD' ? landlordUser : tenantUser;
 
   const updateUserVerification = (idCardUrl: string, proofUrl: string) => {
-    setLandlordUser((prev) => ({
-      ...prev,
-      verificationStatus: 'VERIFIED',
-      idCardUrl,
-      proofOfOwnershipUrl: proofUrl,
-    }));
+    setLandlordUser((prev) => {
+      const updated = {
+        ...prev,
+        verificationStatus: 'VERIFIED' as const,
+        idCardUrl,
+        proofOfOwnershipUrl: proofUrl,
+      };
+
+      const client = getSupabase();
+      if (client) {
+        client.from('profiles').update({
+          verification_status: 'VERIFIED',
+          id_card_url: idCardUrl,
+          proof_of_ownership_url: proofUrl,
+        }).eq('id', prev.id);
+      }
+
+      return updated;
+    });
   };
 
   const addProperty = (propertyData: Omit<Property, 'id' | 'createdAt' | 'ownerId' | 'ownerName' | 'ownerPhone' | 'ownerVerified'>) => {
@@ -303,7 +373,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
     setProperties((prev) => [newProp, ...prev]);
 
-    // Persist to Supabase if available
+    // Persist to Supabase PostgreSQL
     const client = getSupabase();
     if (client) {
       client.from('properties').insert([{
@@ -329,7 +399,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       });
     }
 
-    // Save offline draft if offline
     if (isOffline) {
       saveOfflineDraft('PROPERTY', newProp);
     }
@@ -412,7 +481,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
     setPayments((prev) => [newPayment, ...prev]);
 
-    // Persist to Supabase if available
+    // Persist to Supabase PostgreSQL
     const client = getSupabase();
     if (client) {
       client.from('leases').insert([{
@@ -481,7 +550,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       })
     );
 
-    // Sync to Supabase if updated
+    // Sync to Supabase PostgreSQL
     if (updatedLease) {
       const client = getSupabase();
       if (client) {
@@ -504,7 +573,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
     setInventoryReports((prev) => [newReport, ...prev]);
 
-    // Persist to Supabase if available
+    // Persist to Supabase PostgreSQL
     const client = getSupabase();
     if (client) {
       client.from('inventory_reports').insert([{
@@ -558,9 +627,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const payRent = async (paymentId: string, method: PaymentMethod, phoneNumber: string): Promise<Payment> => {
-    // Simulate Network delay & Wave/Orange Money API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
     const txId = method === 'WAVE' ? `WAVE-SN-${Date.now().toString().slice(-6)}` : `OM-SN-77${Date.now().toString().slice(-6)}`;
 
     // Find existing payment
@@ -589,7 +655,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       prev.map((pay) => (pay.id === paymentId ? updatedPayment : pay))
     );
 
-    // Sync to Supabase if available
+    // Live Sync to Supabase PostgreSQL
     const client = getSupabase();
     if (client) {
       client.from('payments').update({
@@ -615,6 +681,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const sendMessage = (propertyId: string, text: string, recipientRole: UserRole) => {
+    let updatedConv: Conversation | null = null;
+
     setConversations((prev) => {
       const existing = prev.find((c) => c.propertyId === propertyId);
       const newMsg = {
@@ -628,11 +696,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       let updatedList = [...prev];
 
       if (existing) {
-        updatedList = prev.map((c) =>
-          c.propertyId === propertyId
-            ? { ...c, messages: [...c.messages, newMsg], lastUpdated: new Date().toISOString() }
-            : c
-        );
+        updatedList = prev.map((c) => {
+          if (c.propertyId === propertyId) {
+            const u = { ...c, messages: [...c.messages, newMsg], lastUpdated: new Date().toISOString() };
+            updatedConv = u;
+            return u;
+          }
+          return c;
+        });
       } else {
         const prop = properties.find((p) => p.id === propertyId);
         const newConv: Conversation = {
@@ -647,11 +718,38 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           lastUpdated: new Date().toISOString(),
           messages: [newMsg],
         };
+        updatedConv = newConv;
         updatedList = [newConv, ...prev];
       }
 
       return updatedList;
     });
+
+    // Live Sync Conversation to Supabase
+    const client = getSupabase();
+    if (client && updatedConv) {
+      const convObj = updatedConv as Conversation;
+      client.from('conversations').insert([{
+        id: convObj.id,
+        property_id: convObj.propertyId,
+        property_title: convObj.propertyTitle,
+        property_photo: convObj.propertyPhoto,
+        landlord_id: convObj.landlordId,
+        tenant_id: convObj.tenantId,
+        landlord_name: convObj.landlordName,
+        tenant_name: convObj.tenantName,
+        messages: convObj.messages,
+        last_updated: convObj.lastUpdated,
+      }]).then(({ error }) => {
+        if (error) {
+          // Fallback to update if row already exists
+          client.from('conversations').update({
+            messages: convObj.messages,
+            last_updated: convObj.lastUpdated,
+          }).eq('property_id', propertyId);
+        }
+      });
+    }
 
     if (isOffline) {
       saveOfflineDraft('MESSAGE', { propertyId, text });
@@ -675,7 +773,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setConversations((prev) =>
       prev.map((c) => {
         if (c.id !== conversationId) return c;
-        return {
+        const updated = {
           ...c,
           messages: [
             ...c.messages,
@@ -689,6 +787,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             },
           ],
         };
+
+        const client = getSupabase();
+        if (client) {
+          client.from('conversations').update({
+            messages: updated.messages,
+            last_updated: new Date().toISOString(),
+          }).eq('id', conversationId);
+        }
+
+        return updated;
       })
     );
   };
@@ -705,11 +813,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const syncOfflineDrafts = () => {
     if (offlineDrafts.length === 0) return;
-    // Notify auto-sync
     const sms = {
       id: `sms_${Date.now()}`,
       phone: currentUser.phone,
-      message: `ImmoConnect: Connexion Internet rétablie. ${offlineDrafts.length} brouillons hors-ligne ont été synchronisés avec succès.`,
+      message: `ImmoConnect: Connexion Internet rétablie. ${offlineDrafts.length} brouillons hors-ligne ont été synchronisés avec succès sur la base Supabase.`,
       timestamp: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
     };
     setSmsNotifications((prev) => [sms, ...prev]);

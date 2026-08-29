@@ -7,7 +7,7 @@ echo.
 
 set GIT_CMD=git
 
-where git >nul 2>nul
+where git >%TEMP%\null 2>%TEMP%\null
 if %errorlevel% neq 0 (
     if exist "C:\Program Files\Git\cmd\git.exe" (
         set GIT_CMD="C:\Program Files\Git\cmd\git.exe"
@@ -29,10 +29,9 @@ echo Utilisation de Git : %GIT_CMD%
 echo.
 
 %GIT_CMD% init
-%GIT_CMD% remote remove origin 2>nul
-%GIT_CMD% remote add origin https://github.com/pistyl/immo-connect.git
+%GIT_CMD% remote set-url origin https://github.com/pistyl/immo-connect.git || %GIT_CMD% remote add origin https://github.com/pistyl/immo-connect.git
 %GIT_CMD% add .
-%GIT_CMD% commit -m "feat: Intégration Supabase PostgreSQL, système d'authentification et gestion locative ImmoConnect"
+%GIT_CMD% commit -m "feat: Connexion par défaut, Supabase PostgreSQL et gestion locative ImmoConnect"
 %GIT_CMD% branch -M main
 %GIT_CMD% push -u origin main --force
 

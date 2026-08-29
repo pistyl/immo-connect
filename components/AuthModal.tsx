@@ -13,7 +13,7 @@ interface AuthModalProps {
 export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   const { loginWithPhone, isAuthenticated } = useApp();
 
-  const [mode, setMode] = useState<'REGISTER' | 'LOGIN'>('REGISTER');
+  const [mode, setMode] = useState<'REGISTER' | 'LOGIN'>('LOGIN');
   const [role, setRole] = useState<UserRole>('LANDLORD');
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('+221 ');

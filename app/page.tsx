@@ -436,42 +436,33 @@ export default function HomePage() {
                   <span>Contrats de Bail Digitaux (Sénégal)</span>
                 </h2>
                 {currentRole === 'LANDLORD' && (
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={() => setIsCreatePaymentOpen(true)}
-                      className="bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold px-3 py-1.5 rounded-xl shadow flex items-center space-x-1"
-                    >
-                      <Plus className="w-3.5 h-3.5" />
-                      <span>Émettre un loyer</span>
-                    </button>
-                    <button
-                      onClick={() => {
-                        if (properties.length > 0) {
-                          createLease({
-                            propertyId: properties[0].id,
-                            propertyTitle: properties[0].title,
-                            propertyRegion: properties[0].region,
-                            propertyNeighborhood: properties[0].neighborhood,
-                            landlordId: currentUser.id,
-                            landlordName: currentUser.name,
-                            landlordPhone: currentUser.phone,
-                            tenantId: 'usr_tenant_aissatou',
-                            tenantName: 'Aïssatou Sow',
-                            tenantPhone: '+221 78 312 45 67',
-                            monthlyRent: properties[0].price,
-                            securityDeposit: properties[0].price * 2,
-                            startDate: '2026-09-01',
-                            durationMonths: 12,
-                          });
-                          alert('Nouveau bail généré pour Aïssatou Sow !');
-                        }
-                      }}
-                      className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-1.5 rounded-xl shadow flex items-center space-x-1"
-                    >
-                      <Plus className="w-3.5 h-3.5" />
-                      <span>Nouveau bail</span>
-                    </button>
-                  </div>
+                  <button
+                    onClick={() => {
+                      if (properties.length > 0) {
+                        createLease({
+                          propertyId: properties[0].id,
+                          propertyTitle: properties[0].title,
+                          propertyRegion: properties[0].region,
+                          propertyNeighborhood: properties[0].neighborhood,
+                          landlordId: currentUser.id,
+                          landlordName: currentUser.name,
+                          landlordPhone: currentUser.phone,
+                          tenantId: 'usr_tenant_aissatou',
+                          tenantName: 'Aïssatou Sow',
+                          tenantPhone: '+221 78 312 45 67',
+                          monthlyRent: properties[0].price,
+                          securityDeposit: properties[0].price * 2,
+                          startDate: '2026-09-01',
+                          durationMonths: 12,
+                        });
+                        alert('Nouveau bail généré pour Aïssatou Sow !');
+                      }
+                    }}
+                    className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-1.5 rounded-xl shadow flex items-center space-x-1"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Nouveau bail</span>
+                  </button>
                 )}
               </div>
 
@@ -991,25 +982,16 @@ export default function HomePage() {
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
                     <h3 className="font-bold text-sm text-white">Mes Propriétés à Dakar</h3>
-                    <div className="flex items-center space-x-3">
-                      <button
-                        onClick={() => setIsCreatePaymentOpen(true)}
-                        className="text-xs font-bold text-sky-400 hover:text-sky-300 flex items-center space-x-1"
-                      >
-                        <Plus className="w-3.5 h-3.5" />
-                        <span>Émettre un loyer</span>
-                      </button>
-                      <button
-                        onClick={() => {
-                          setEditingProperty(null);
-                          setIsCreateOpen(true);
-                        }}
-                        className="text-xs font-bold text-emerald-400 hover:text-emerald-300 flex items-center space-x-1"
-                      >
-                        <Plus className="w-3.5 h-3.5" />
-                        <span>Ajouter un bien</span>
-                      </button>
-                    </div>
+                    <button
+                      onClick={() => {
+                        setEditingProperty(null);
+                        setIsCreateOpen(true);
+                      }}
+                      className="text-xs font-bold text-emerald-400 hover:text-emerald-300 flex items-center space-x-1"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      <span>Ajouter un bien</span>
+                    </button>
                   </div>
 
                   {properties.filter((p) => p.ownerId === currentUser.id).length === 0 ? (

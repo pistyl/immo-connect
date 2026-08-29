@@ -2,13 +2,13 @@ import { User, Property, Lease, InventoryReport, Payment, Conversation } from '.
 
 export const INITIAL_USER_LANDLORD: User = {
   id: 'usr_landlord_mamadou',
-  name: 'Mamadou Ndiaye',
+  name: 'Ibrahima Samb',
   phone: '+221 77 645 89 12',
   role: 'LANDLORD',
   verificationStatus: 'VERIFIED',
   idCardUrl: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=400&q=80',
   proofOfOwnershipUrl: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=400&q=80',
-  email: 'mamadou.ndiaye@immo-senegal.sn',
+  email: 'ibrahima.samb@immo-senegal.sn',
   createdAt: '2026-01-15T10:00:00Z',
 };
 
@@ -26,7 +26,7 @@ export const INITIAL_PROPERTIES: Property[] = [
   {
     id: 'prop_mermoz_f3',
     ownerId: 'usr_landlord_mamadou',
-    ownerName: 'Mamadou Ndiaye',
+    ownerName: 'Ibrahima Samb',
     ownerPhone: '+221 77 645 89 12',
     ownerVerified: true,
     title: 'Appartement F3 Moderne Lumineux',
@@ -51,7 +51,7 @@ export const INITIAL_PROPERTIES: Property[] = [
   {
     id: 'prop_saly_villa',
     ownerId: 'usr_landlord_mamadou',
-    ownerName: 'Mamadou Ndiaye',
+    ownerName: 'Ibrahima Samb',
     ownerPhone: '+221 77 645 89 12',
     ownerVerified: true,
     title: 'Villa de Standing avec Piscine à Saly',
@@ -121,7 +121,7 @@ export const INITIAL_PROPERTIES: Property[] = [
   {
     id: 'prop_almadies_studio',
     ownerId: 'usr_landlord_mamadou',
-    ownerName: 'Mamadou Ndiaye',
+    ownerName: 'Ibrahima Samb',
     ownerPhone: '+221 77 645 89 12',
     ownerVerified: true,
     title: 'Studio Executive Meublé Almadies',
@@ -197,7 +197,7 @@ export const INITIAL_LEASES: Lease[] = [
     propertyRegion: 'Dakar',
     propertyNeighborhood: 'Mermoz',
     landlordId: 'usr_landlord_mamadou',
-    landlordName: 'Mamadou Ndiaye',
+    landlordName: 'Ibrahima Samb',
     landlordPhone: '+221 77 645 89 12',
     tenantId: 'usr_tenant_aissatou',
     tenantName: 'Aïssatou Sow',
@@ -211,7 +211,7 @@ export const INITIAL_LEASES: Lease[] = [
       signed: true,
       timestamp: '2026-02-28 14:15:22',
       ip: '41.82.105.14 (Orange Senegal)',
-      signerName: 'Mamadou Ndiaye',
+      signerName: 'Ibrahima Samb',
     },
     tenantSignature: {
       signed: true,
@@ -231,7 +231,7 @@ export const INITIAL_INVENTORY_REPORTS: InventoryReport[] = [
     propertyRegion: 'Dakar',
     propertyNeighborhood: 'Mermoz',
     tenantName: 'Aïssatou Sow',
-    landlordName: 'Mamadou Ndiaye',
+    landlordName: 'Ibrahima Samb',
     dateEntry: '2026-03-01',
     type: 'ENTREE',
     isEntrySigned: true,

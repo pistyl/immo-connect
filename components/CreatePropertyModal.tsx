@@ -1,18 +1,23 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
-import { SenegalRegion, SENEGAL_REGIONS, SENEGAL_LOCALITIES, PropertyType } from '../types';
+import { Property, SenegalRegion, SENEGAL_REGIONS, SENEGAL_LOCALITIES, PropertyType } from '../types';
 import { compressImage } from '../lib/imageCompressor';
-import { X, Upload, Check, AlertCircle, WifiOff, Sparkles, MapPin } from 'lucide-react';
+import { X, Upload, Check, AlertCircle, WifiOff, Sparkles, MapPin, Edit3 } from 'lucide-react';
 
 interface CreatePropertyModalProps {
   isOpen: boolean;
   onClose: () => void;
+  propertyToEdit?: Property | null;
 }
 
-export const CreatePropertyModal: React.FC<CreatePropertyModalProps> = ({ isOpen, onClose }) => {
-  const { addProperty, isOffline } = useApp();
+export const CreatePropertyModal: React.FC<CreatePropertyModalProps> = ({
+  isOpen,
+  onClose,
+  propertyToEdit,
+}) => {
+  const { addProperty, updateProperty, isOffline } = useApp();
 
   const [title, setTitle] = useState('');
   const [region, setRegion] = useState<SenegalRegion>('Dakar');
@@ -22,12 +27,43 @@ export const CreatePropertyModal: React.FC<CreatePropertyModalProps> = ({ isOpen
   const [rooms, setRooms] = useState<number>(3);
   const [price, setPrice] = useState<number>(250000);
   const [chargesIncluded, setChargesIncluded] = useState<boolean>(true);
+  const [isAvailable, setIsAvailable] = useState<boolean>(true);
   const [description, setDescription] = useState('');
   const [approxLocation, setApproxLocation] = useState('');
-  
+
   const [photos, setPhotos] = useState<string[]>([]);
   const [isCompressing, setIsCompressing] = useState<boolean>(false);
   const [submitted, setSubmitted] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (propertyToEdit) {
+      setTitle(propertyToEdit.title || '');
+      setRegion(propertyToEdit.region || 'Dakar');
+      setNeighborhood(propertyToEdit.neighborhood || 'Mermoz');
+      setCity(propertyToEdit.city || 'Dakar');
+      setType(propertyToEdit.type || 'APPARTEMENT');
+      setRooms(propertyToEdit.rooms || 1);
+      setPrice(propertyToEdit.price || 0);
+      setChargesIncluded(propertyToEdit.chargesIncluded ?? true);
+      setIsAvailable(propertyToEdit.isAvailable ?? true);
+      setDescription(propertyToEdit.description || '');
+      setApproxLocation(propertyToEdit.approxLocation || '');
+      setPhotos(propertyToEdit.photos || []);
+    } else {
+      setTitle('');
+      setRegion('Dakar');
+      setNeighborhood('Mermoz');
+      setCity('Dakar');
+      setType('APPARTEMENT');
+      setRooms(3);
+      setPrice(250000);
+      setChargesIncluded(true);
+      setIsAvailable(true);
+      setDescription('');
+      setApproxLocation('');
+      setPhotos([]);
+    }
+  }, [propertyToEdit, isOpen]);
 
   if (!isOpen) return null;
 
@@ -65,20 +101,37 @@ export const CreatePropertyModal: React.FC<CreatePropertyModalProps> = ({ isOpen
       return;
     }
 
-    addProperty({
-      title,
-      region,
-      neighborhood,
-      city: city || region,
-      type,
-      rooms,
-      price: Number(price),
-      chargesIncluded,
-      isAvailable: true,
-      description,
-      approxLocation: approxLocation || `Localité : ${neighborhood}, Région de ${region}`,
-      photos,
-    });
+    if (propertyToEdit) {
+      updateProperty(propertyToEdit.id, {
+        title,
+        region,
+        neighborhood,
+        city: city || region,
+        type,
+        rooms,
+        price: Number(price),
+        chargesIncluded,
+        isAvailable,
+        description,
+        approxLocation: approxLocation || `Localité : ${neighborhood}, Région de ${region}`,
+        photos,
+      });
+    } else {
+      addProperty({
+        title,
+        region,
+        neighborhood,
+        city: city || region,
+        type,
+        rooms,
+        price: Number(price),
+        chargesIncluded,
+        isAvailable,
+        description,
+        approxLocation: approxLocation || `Localité : ${neighborhood}, Région de ${region}`,
+        photos,
+      });
+    }
 
     setSubmitted(true);
     setTimeout(() => {
@@ -93,8 +146,14 @@ export const CreatePropertyModal: React.FC<CreatePropertyModalProps> = ({ isOpen
         {/* Header */}
         <div className="flex justify-between items-center px-5 py-4 border-b border-slate-800 bg-slate-950/80">
           <div className="flex items-center space-x-2">
-            <Sparkles className="w-5 h-5 text-emerald-400" />
-            <h2 className="font-extrabold text-base text-white">Publier une Annonce au Sénégal</h2>
+            {propertyToEdit ? (
+              <Edit3 className="w-5 h-5 text-blue-400" />
+            ) : (
+              <Sparkles className="w-5 h-5 text-emerald-400" />
+            )}
+            <h2 className="font-extrabold text-base text-white">
+              {propertyToEdit ? 'Modifier la Propriété' : 'Publier une Annonce au Sénégal'}
+            </h2>
           </div>
           <button
             onClick={onClose}
@@ -108,7 +167,7 @@ export const CreatePropertyModal: React.FC<CreatePropertyModalProps> = ({ isOpen
         {isOffline && (
           <div className="bg-amber-950/80 border-b border-amber-800/80 px-4 py-2 text-xs text-amber-200 flex items-center space-x-2">
             <WifiOff className="w-4 h-4 shrink-0 text-amber-400" />
-            <span>Mode Hors-ligne active : L'annonce sera enregistrée en brouillon local.</span>
+            <span>Mode Hors-ligne activé : Les modifications seront enregistrées en brouillon local.</span>
           </div>
         )}
 
@@ -117,13 +176,38 @@ export const CreatePropertyModal: React.FC<CreatePropertyModalProps> = ({ isOpen
             <div className="w-16 h-16 bg-emerald-600/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto text-3xl border border-emerald-500/40">
               <Check className="w-8 h-8" />
             </div>
-            <h3 className="text-lg font-bold text-white">Annonce publiée avec succès !</h3>
+            <h3 className="text-lg font-bold text-white">
+              {propertyToEdit ? 'Propriété modifiée avec succès !' : 'Annonce publiée avec succès !'}
+            </h3>
             <p className="text-xs text-slate-400">
-              Votre bien est désormais visible pour les locataires sur ImmoConnect.
+              {propertyToEdit
+                ? 'Les modifications ont été enregistrées et mises à jour sur la plateforme.'
+                : 'Votre bien est désormais visible pour les locataires sur ImmoConnect.'}
             </p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="p-5 sm:p-6 overflow-y-auto space-y-4 text-xs">
+            {/* Availability Status Toggle (If Editing) */}
+            {propertyToEdit && (
+              <div className="bg-slate-950 border border-slate-800 p-3.5 rounded-2xl flex items-center justify-between">
+                <div>
+                  <label className="block text-xs font-bold text-white">Statut de disponibilité</label>
+                  <span className="text-[11px] text-slate-400">Indiquez si le bien est actuellement libre ou loué</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsAvailable(!isAvailable)}
+                  className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all border ${
+                    isAvailable
+                      ? 'bg-emerald-950 text-emerald-400 border-emerald-800 hover:bg-emerald-900'
+                      : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-750'
+                  }`}
+                >
+                  {isAvailable ? 'Disponible' : 'Occupé (Loué)'}
+                </button>
+              </div>
+            )}
+
             {/* Title */}
             <div>
               <label className="block text-xs font-semibold text-slate-300 mb-1">
@@ -322,10 +406,14 @@ export const CreatePropertyModal: React.FC<CreatePropertyModalProps> = ({ isOpen
               <button
                 type="submit"
                 disabled={isCompressing}
-                className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-lg transition-all flex items-center justify-center space-x-2 disabled:opacity-50"
+                className={`w-full py-3.5 text-white font-bold text-xs rounded-xl shadow-lg transition-all flex items-center justify-center space-x-2 disabled:opacity-50 ${
+                  propertyToEdit
+                    ? 'bg-blue-600 hover:bg-blue-500'
+                    : 'bg-emerald-600 hover:bg-emerald-500'
+                }`}
               >
                 <Check className="w-4 h-4" />
-                <span>Publier l'Annonce</span>
+                <span>{propertyToEdit ? 'Enregistrer les Modifications' : "Publier l'Annonce"}</span>
               </button>
             </div>
           </form>

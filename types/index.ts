@@ -210,7 +210,7 @@ export interface InventoryReport {
   pdfUrl?: string;
 }
 
-export type PaymentMethod = 'WAVE' | 'ORANGE_MONEY';
+export type PaymentMethod = 'WAVE' | 'ORANGE_MONEY' | 'CASH' | 'BANK_TRANSFER' | 'CHEQUE';
 
 export type PaymentStatus = 'PENDING' | 'PAID' | 'OVERDUE';
 

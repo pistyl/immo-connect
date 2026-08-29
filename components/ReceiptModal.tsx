@@ -61,7 +61,11 @@ export const ReceiptModal: React.FC<ReceiptModalProps> = ({ payment, onClose }) 
             <div className="flex justify-between items-center pb-2 border-b border-slate-800">
               <span className="text-slate-400">Mode de paiement</span>
               <span className="font-bold text-sky-400">
-                {payment.method === 'WAVE' ? '🌊 Wave Sénégal' : '🍊 Orange Money'}
+                {payment.method === 'WAVE' ? '🌊 Wave Sénégal' :
+                 payment.method === 'ORANGE_MONEY' ? '🍊 Orange Money' :
+                 payment.method === 'CASH' ? '💵 Espèces (Cash)' :
+                 payment.method === 'BANK_TRANSFER' ? '🏦 Virement Bancaire' :
+                 payment.method === 'CHEQUE' ? '📄 Chèque Bancaire' : 'Paiement Validé'}
               </span>
             </div>
 

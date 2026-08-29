@@ -47,6 +47,9 @@ interface AppContextType {
   updateExitInventory: (reportId: string, itemsExit: InventoryItem[], dateExit: string) => void;
   payments: Payment[];
   payRent: (paymentId: string, method: PaymentMethod, phoneNumber: string) => Promise<Payment>;
+  addPayment: (paymentData: Omit<Payment, 'id' | 'status'>) => Payment;
+  markPaymentAsPaid: (paymentId: string, method: PaymentMethod, transactionId?: string) => Payment;
+  sendRentReminder: (paymentId: string) => void;
   conversations: Conversation[];
   sendMessage: (propertyId: string, text: string, recipientRole: UserRole) => void;
   sendSmsFallback: (conversationId: string, text: string) => void;
@@ -680,6 +683,111 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return updatedPayment;
   };
 
+  const addPayment = (paymentData: Omit<Payment, 'id' | 'status'>): Payment => {
+    const newPayment: Payment = {
+      ...paymentData,
+      id: `pay_${Date.now()}`,
+      status: 'PENDING',
+    };
+    setPayments((prev) => [newPayment, ...prev]);
+
+    const newSms = {
+      id: `sms_${Date.now()}`,
+      phone: landlordUser.phone,
+      message: `🔔 Nouvel appel de loyer ImmoConnect : Le loyer de ${newPayment.periodMonth} (${newPayment.amount.toLocaleString()} FCFA) pour ${newPayment.propertyTitle} est émis. Échéance : ${newPayment.dueDate}.`,
+      timestamp: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+    };
+    setSmsNotifications((prev) => [newSms, ...prev]);
+
+    const client = getSupabase();
+    if (client) {
+      client.from('payments').insert([{
+        id: newPayment.id,
+        lease_id: newPayment.leaseId,
+        property_title: newPayment.propertyTitle,
+        tenant_id: newPayment.tenantId,
+        tenant_name: newPayment.tenantName,
+        landlord_id: newPayment.landlordId,
+        amount: newPayment.amount,
+        period_month: newPayment.periodMonth,
+        due_date: newPayment.dueDate,
+        status: newPayment.status,
+      }]).then(({ error }) => {
+        if (error) console.warn('Supabase insert payment warning:', error);
+      });
+    }
+
+    return newPayment;
+  };
+
+  const markPaymentAsPaid = (paymentId: string, method: PaymentMethod, transactionId?: string): Payment => {
+    const existingPay = payments.find((p) => p.id === paymentId);
+    const txRef = transactionId || (
+      method === 'WAVE' ? `WAVE-SN-${Date.now().toString().slice(-6)}` :
+      method === 'ORANGE_MONEY' ? `OM-SN-77${Date.now().toString().slice(-6)}` :
+      method === 'CASH' ? `ESP-SN-${Date.now().toString().slice(-6)}` :
+      method === 'BANK_TRANSFER' ? `VIR-SN-${Date.now().toString().slice(-6)}` :
+      `CHQ-SN-${Date.now().toString().slice(-6)}`
+    );
+
+    const updatedPayment: Payment = {
+      ...(existingPay || {
+        id: paymentId,
+        leaseId: 'lease_mermoz_2026',
+        propertyTitle: 'Appartement Immo',
+        tenantId: tenantUser.id,
+        tenantName: tenantUser.name,
+        landlordId: landlordUser.id,
+        amount: 250000,
+        periodMonth: 'Août 2026',
+        dueDate: '2026-08-05',
+      }),
+      status: 'PAID',
+      method,
+      paidDate: new Date().toISOString(),
+      transactionId: txRef,
+    };
+
+    setPayments((prev) =>
+      prev.map((pay) => (pay.id === paymentId ? updatedPayment : pay))
+    );
+
+    const newSms = {
+      id: `sms_${Date.now()}`,
+      phone: updatedPayment.tenantName,
+      message: `✅ Quittance ImmoConnect : Le paiement du loyer ${updatedPayment.periodMonth} (${updatedPayment.amount.toLocaleString()} FCFA) a été validé via ${method}. Réf : ${txRef}.`,
+      timestamp: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+    };
+    setSmsNotifications((prev) => [newSms, ...prev]);
+
+    const client = getSupabase();
+    if (client) {
+      client.from('payments').update({
+        status: 'PAID',
+        method: method,
+        paid_date: updatedPayment.paidDate,
+        transaction_id: txRef,
+      }).eq('id', paymentId).then(({ error }) => {
+        if (error) console.warn('Supabase update payment status warning:', error);
+      });
+    }
+
+    return updatedPayment;
+  };
+
+  const sendRentReminder = (paymentId: string) => {
+    const pay = payments.find((p) => p.id === paymentId);
+    if (!pay) return;
+
+    const newSms = {
+      id: `sms_${Date.now()}`,
+      phone: pay.tenantName,
+      message: `📲 Rappel Loyer ImmoConnect : Bonjour ${pay.tenantName}, le loyer de ${pay.periodMonth} (${pay.amount.toLocaleString()} FCFA) pour ${pay.propertyTitle} est en attente. Échéance : ${pay.dueDate}. Merci de procéder au règlement.`,
+      timestamp: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+    };
+    setSmsNotifications((prev) => [newSms, ...prev]);
+  };
+
   const sendMessage = (propertyId: string, text: string, recipientRole: UserRole) => {
     let updatedConv: Conversation | null = null;
 
@@ -850,6 +958,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         updateExitInventory,
         payments,
         payRent,
+        addPayment,
+        markPaymentAsPaid,
+        sendRentReminder,
         conversations,
         sendMessage,
         sendSmsFallback,

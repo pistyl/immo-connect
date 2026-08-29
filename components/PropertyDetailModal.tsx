@@ -15,6 +15,8 @@ import {
   Building,
   Phone,
   AlertTriangle,
+  Pencil,
+  Trash2,
 } from 'lucide-react';
 
 interface PropertyDetailModalProps {
@@ -22,6 +24,8 @@ interface PropertyDetailModalProps {
   onClose: () => void;
   onOpenMessage: (property: Property) => void;
   onCreateLease: (property: Property) => void;
+  onEditProperty?: (property: Property) => void;
+  onDeleteProperty?: (property: Property) => void;
 }
 
 export const PropertyDetailModal: React.FC<PropertyDetailModalProps> = ({
@@ -29,11 +33,15 @@ export const PropertyDetailModal: React.FC<PropertyDetailModalProps> = ({
   onClose,
   onOpenMessage,
   onCreateLease,
+  onEditProperty,
+  onDeleteProperty,
 }) => {
-  const { currentRole } = useApp();
+  const { currentRole, currentUser } = useApp();
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
 
   if (!property) return null;
+
+  const isOwner = currentRole === 'LANDLORD' && (property.ownerId === currentUser?.id || !property.ownerId);
 
   return (
     <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-in fade-in duration-200">
@@ -172,41 +180,68 @@ export const PropertyDetailModal: React.FC<PropertyDetailModalProps> = ({
         </div>
 
         {/* Modal Action Footer */}
-        <div className="p-4 border-t border-slate-800 bg-slate-950/90 grid grid-cols-2 gap-3">
-          <button
-            onClick={() => {
-              onClose();
-              onOpenMessage(property);
-            }}
-            className="w-full py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs rounded-xl flex items-center justify-center space-x-2 border border-slate-700 transition-colors"
-          >
-            <MessageSquare className="w-4 h-4 text-emerald-400" />
-            <span>Envoyer un message</span>
-          </button>
+        <div className="p-4 border-t border-slate-800 bg-slate-950/90 space-y-3">
+          {isOwner && (
+            <div className="grid grid-cols-2 gap-2 pb-2 border-b border-slate-800/80">
+              <button
+                onClick={() => {
+                  onClose();
+                  if (onEditProperty) onEditProperty(property);
+                }}
+                className="w-full py-2 bg-slate-800 hover:bg-slate-700 text-blue-400 font-bold text-xs rounded-xl flex items-center justify-center space-x-1.5 border border-slate-700 transition-colors"
+              >
+                <Pencil className="w-3.5 h-3.5" />
+                <span>Modifier l'annonce</span>
+              </button>
+              <button
+                onClick={() => {
+                  onClose();
+                  if (onDeleteProperty) onDeleteProperty(property);
+                }}
+                className="w-full py-2 bg-rose-950/40 hover:bg-rose-900/60 text-rose-300 font-bold text-xs rounded-xl flex items-center justify-center space-x-1.5 border border-rose-800/60 transition-colors"
+              >
+                <Trash2 className="w-3.5 h-3.5 text-rose-400" />
+                <span>Supprimer la propriété</span>
+              </button>
+            </div>
+          )}
 
-          {currentRole === 'LANDLORD' ? (
-            <button
-              onClick={() => {
-                onClose();
-                onCreateLease(property);
-              }}
-              className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl flex items-center justify-center space-x-2 shadow-lg transition-all"
-            >
-              <FileSignature className="w-4 h-4" />
-              <span>Générer un bail</span>
-            </button>
-          ) : (
+          <div className="grid grid-cols-2 gap-3">
             <button
               onClick={() => {
                 onClose();
                 onOpenMessage(property);
               }}
-              className="w-full py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs rounded-xl flex items-center justify-center space-x-2 shadow-lg transition-all"
+              className="w-full py-3 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs rounded-xl flex items-center justify-center space-x-2 border border-slate-700 transition-colors"
             >
-              <Building className="w-4 h-4" />
-              <span>Demander la location</span>
+              <MessageSquare className="w-4 h-4 text-emerald-400" />
+              <span>Envoyer un message</span>
             </button>
-          )}
+
+            {currentRole === 'LANDLORD' ? (
+              <button
+                onClick={() => {
+                  onClose();
+                  onCreateLease(property);
+                }}
+                className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl flex items-center justify-center space-x-2 shadow-lg transition-all"
+              >
+                <FileSignature className="w-4 h-4" />
+                <span>Générer un bail</span>
+              </button>
+            ) : (
+              <button
+                onClick={() => {
+                  onClose();
+                  onOpenMessage(property);
+                }}
+                className="w-full py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs rounded-xl flex items-center justify-center space-x-2 shadow-lg transition-all"
+              >
+                <Building className="w-4 h-4" />
+                <span>Demander la location</span>
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>

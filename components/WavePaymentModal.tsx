@@ -104,11 +104,9 @@ export const WavePaymentModal: React.FC<WavePaymentModalProps> = ({
           )}
 
           {step === 'OTP' && (
-            <form onSubmit={handleConfirmPay} className="space-y-4 animate-in fade-in">
               <div className="bg-sky-950/60 border border-sky-800/80 rounded-xl p-3 text-xs text-sky-200">
-                Un SMS Wave avec un code de confirmation à 4 chiffres a été envoyé au{' '}
+                Un code d'autorisation sécurisé Wave à 4 chiffres a été transmis à votre numéro{' '}
                 <strong className="font-mono text-white">{phone}</strong>.
-                <div className="text-[11px] text-sky-400 mt-1">Code de test instantané : 1234</div>
               </div>
 
               <div>

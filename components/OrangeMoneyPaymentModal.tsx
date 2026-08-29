@@ -106,9 +106,8 @@ export const OrangeMoneyPaymentModal: React.FC<OrangeMoneyPaymentModalProps> = (
           {step === 'USSD' && (
             <form onSubmit={handleConfirmPay} className="space-y-4 animate-in fade-in">
               <div className="bg-orange-950/40 border border-orange-800/60 rounded-xl p-3 text-xs text-orange-200">
-                Une notification USSD a été envoyée sur votre mobile.
-                Entrez votre code secret Orange Money à 4 chiffres pour valider.
-                <div className="text-[11px] text-orange-400 mt-1">Code de test : 0000</div>
+                Une demande de paiement USSD Orange Money a été émise vers votre téléphone.
+                Veuillez saisir votre code secret pour valider le règlement.
               </div>
 
               <div>

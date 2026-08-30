@@ -16,6 +16,8 @@ import {
   Check,
 } from 'lucide-react';
 
+import { initiateUnitechPayWave, initiateUnitechPayOrangeMoney } from '../lib/unitechpay';
+
 interface SubscriptionModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -31,9 +33,16 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
 
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan>('ANNUAL');
   const [paymentMethod, setPaymentMethod] = useState<'WAVE' | 'ORANGE_MONEY'>('WAVE');
-  const [phoneNumber, setPhoneNumber] = useState<string>(currentUser.phone || '+221 77 000 00 00');
+  const [phoneNumber, setPhoneNumber] = useState<string>(currentUser.phone || '');
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
+
+  // Synchronize with registered user's phone number
+  React.useEffect(() => {
+    if (currentUser.phone) {
+      setPhoneNumber(currentUser.phone);
+    }
+  }, [currentUser.phone, isOpen]);
 
   if (!isOpen) return null;
 
@@ -66,11 +75,27 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
 
   const currentSelectedObj = plans.find((p) => p.id === selectedPlan) || plans[2];
 
-  const handleSubscribeSubmit = (e: React.FormEvent) => {
+  const handleSubscribeSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsProcessing(true);
 
-    setTimeout(() => {
+    try {
+      if (paymentMethod === 'WAVE') {
+        await initiateUnitechPayWave({
+          amount: currentSelectedObj.price,
+          phone: phoneNumber,
+          customId: `sub_${selectedPlan}_${Date.now()}`,
+          description: `Abonnement Bailleur Pro ${currentSelectedObj.name}`,
+        });
+      } else {
+        await initiateUnitechPayOrangeMoney({
+          amount: currentSelectedObj.price,
+          phone: phoneNumber,
+          customId: `sub_${selectedPlan}_${Date.now()}`,
+          description: `Abonnement Bailleur Pro ${currentSelectedObj.name}`,
+        });
+      }
+
       upgradeSubscription(selectedPlan);
       setIsProcessing(false);
       setIsSuccess(true);
@@ -79,7 +104,10 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
         setIsSuccess(false);
         onClose();
       }, 2000);
-    }, 1200);
+    } catch (err) {
+      alert('Erreur lors du traitement UnitechPay. Veuillez réessayer.');
+      setIsProcessing(false);
+    }
   };
 
   return (
@@ -256,6 +284,7 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
                 <input
                   type="tel"
                   required
+                  placeholder="+221 77 000 00 00"
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
                   className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-amber-500 font-mono"

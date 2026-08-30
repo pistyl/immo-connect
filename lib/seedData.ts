@@ -3,7 +3,7 @@ import { User, Property, Lease, InventoryReport, Payment, Conversation } from '.
 export const INITIAL_USER_LANDLORD: User = {
   id: 'usr_landlord_mamadou',
   name: 'Ibrahima Samb',
-  phone: '+221 77 645 89 12',
+  phone: '',
   role: 'LANDLORD',
   verificationStatus: 'VERIFIED',
   idCardUrl: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=400&q=80',
@@ -15,7 +15,7 @@ export const INITIAL_USER_LANDLORD: User = {
 export const INITIAL_USER_TENANT: User = {
   id: 'usr_tenant_aissatou',
   name: 'Aïssatou Sow',
-  phone: '+221 78 312 45 67',
+  phone: '',
   role: 'TENANT',
   verificationStatus: 'VERIFIED',
   email: 'aissatou.sow@orange.sn',

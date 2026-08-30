@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Payment } from '../types';
 import { formatFCFA } from '../lib/pdfGenerator';
 import { useApp } from '../context/AppContext';
+import { initiateUnitechPayWave } from '../lib/unitechpay';
 import { X, CheckCircle, ShieldCheck, Loader2, ArrowRight } from 'lucide-react';
 
 interface WavePaymentModalProps {
@@ -34,11 +35,22 @@ export const WavePaymentModal: React.FC<WavePaymentModalProps> = ({
     e.preventDefault();
     setStep('PROCESSING');
     try {
+      // Call UnitechPay Senegal API for Wave
+      const utpRes = await initiateUnitechPayWave({
+        amount: payment.amount,
+        phone,
+        customId: payment.id,
+        description: `Loyer ${payment.periodMonth} - ${payment.propertyTitle}`,
+      });
+
       const res = await payRent(payment.id, 'WAVE', phone);
+      if (utpRes.transactionId) {
+        res.transactionId = utpRes.transactionId;
+      }
       setProcessedPayment(res);
       setStep('SUCCESS');
     } catch (err) {
-      alert('Échec de la transaction Wave. Veuillez réessayer.');
+      alert('Échec de la transaction Wave via UnitechPay. Veuillez réessayer.');
       setStep('PHONE');
     }
   };
@@ -54,7 +66,7 @@ export const WavePaymentModal: React.FC<WavePaymentModalProps> = ({
             </div>
             <div>
               <h2 className="font-extrabold text-lg tracking-tight">Wave Digital Finance</h2>
-              <p className="text-xs text-sky-100 font-medium">Paiement Sécurisé du Loyer</p>
+              <p className="text-xs text-sky-100 font-medium">Propulsé par UnitechPay Sénégal</p>
             </div>
           </div>
           <button
@@ -97,7 +109,7 @@ export const WavePaymentModal: React.FC<WavePaymentModalProps> = ({
                 type="submit"
                 className="w-full py-3.5 bg-sky-500 hover:bg-sky-400 text-slate-950 font-extrabold text-xs rounded-xl shadow-lg transition-all flex items-center justify-center space-x-2"
               >
-                <span>Continuer avec Wave</span>
+                <span>Continuer avec Wave (UnitechPay)</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </form>
@@ -129,7 +141,7 @@ export const WavePaymentModal: React.FC<WavePaymentModalProps> = ({
                 type="submit"
                 className="w-full py-3.5 bg-sky-500 hover:bg-sky-400 text-slate-950 font-extrabold text-xs rounded-xl shadow-lg transition-all flex items-center justify-center space-x-2"
               >
-                <span>Valider le Paiement Wave</span>
+                <span>Valider le Paiement via UnitechPay</span>
                 <ShieldCheck className="w-4 h-4" />
               </button>
             </form>
@@ -138,8 +150,8 @@ export const WavePaymentModal: React.FC<WavePaymentModalProps> = ({
           {step === 'PROCESSING' && (
             <div className="py-8 text-center space-y-3">
               <Loader2 className="w-10 h-10 text-sky-400 animate-spin mx-auto" />
-              <h3 className="text-sm font-bold text-white">Validation Wave API en cours...</h3>
-              <p className="text-xs text-slate-400">Communication avec les serveurs Wave Sénégal</p>
+              <h3 className="text-sm font-bold text-white">Validation UnitechPay Sénégal...</h3>
+              <p className="text-xs text-slate-400">Paiement sécurisé via api.unitech.sn</p>
             </div>
           )}
 
@@ -149,9 +161,9 @@ export const WavePaymentModal: React.FC<WavePaymentModalProps> = ({
                 <CheckCircle className="w-8 h-8" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-white">Paiement Réussi via Wave !</h3>
+                <h3 className="text-base font-bold text-white">Paiement Réussi via UnitechPay Wave !</h3>
                 <p className="text-xs text-slate-400 font-mono mt-1">
-                  Réf: {processedPayment.transactionId}
+                  Réf UnitechPay: {processedPayment.transactionId}
                 </p>
               </div>
 

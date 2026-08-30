@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Payment } from '../types';
 import { formatFCFA } from '../lib/pdfGenerator';
 import { useApp } from '../context/AppContext';
+import { initiateUnitechPayOrangeMoney } from '../lib/unitechpay';
 import { X, CheckCircle, ShieldCheck, Loader2, Smartphone } from 'lucide-react';
 
 interface OrangeMoneyPaymentModalProps {
@@ -34,11 +35,22 @@ export const OrangeMoneyPaymentModal: React.FC<OrangeMoneyPaymentModalProps> = (
     e.preventDefault();
     setStep('PROCESSING');
     try {
+      // Call UnitechPay Senegal API for Orange Money
+      const utpRes = await initiateUnitechPayOrangeMoney({
+        amount: payment.amount,
+        phone,
+        customId: payment.id,
+        description: `Loyer ${payment.periodMonth} - ${payment.propertyTitle}`,
+      });
+
       const res = await payRent(payment.id, 'ORANGE_MONEY', phone);
+      if (utpRes.transactionId) {
+        res.transactionId = utpRes.transactionId;
+      }
       setProcessedPayment(res);
       setStep('SUCCESS');
     } catch (err) {
-      alert('Échec de la transaction Orange Money. Veuillez réessayer.');
+      alert('Échec de la transaction Orange Money via UnitechPay. Veuillez réessayer.');
       setStep('PHONE');
     }
   };
@@ -54,7 +66,7 @@ export const OrangeMoneyPaymentModal: React.FC<OrangeMoneyPaymentModalProps> = (
             </div>
             <div>
               <h2 className="font-extrabold text-lg tracking-tight text-black">Orange Money Sénégal</h2>
-              <p className="text-xs text-orange-950 font-semibold">Service de Paiement Marchand</p>
+              <p className="text-xs text-orange-950 font-semibold">Propulsé par UnitechPay Sénégal</p>
             </div>
           </div>
           <button
@@ -98,7 +110,7 @@ export const OrangeMoneyPaymentModal: React.FC<OrangeMoneyPaymentModalProps> = (
                 className="w-full py-3.5 bg-orange-500 hover:bg-orange-400 text-black font-black text-xs rounded-xl shadow-lg transition-all flex items-center justify-center space-x-2"
               >
                 <Smartphone className="w-4 h-4" />
-                <span>Payer par USSD #144#</span>
+                <span>Payer via UnitechPay Orange Money</span>
               </button>
             </form>
           )}
@@ -129,7 +141,7 @@ export const OrangeMoneyPaymentModal: React.FC<OrangeMoneyPaymentModalProps> = (
                 type="submit"
                 className="w-full py-3.5 bg-orange-500 hover:bg-orange-400 text-black font-black text-xs rounded-xl shadow-lg transition-all flex items-center justify-center space-x-2"
               >
-                <span>Confirmer le Débit Orange Money</span>
+                <span>Confirmer le Débit via UnitechPay</span>
                 <ShieldCheck className="w-4 h-4" />
               </button>
             </form>
@@ -138,8 +150,8 @@ export const OrangeMoneyPaymentModal: React.FC<OrangeMoneyPaymentModalProps> = (
           {step === 'PROCESSING' && (
             <div className="py-8 text-center space-y-3">
               <Loader2 className="w-10 h-10 text-orange-500 animate-spin mx-auto" />
-              <h3 className="text-sm font-bold text-white">Traitement Orange Money API...</h3>
-              <p className="text-xs text-neutral-400">Communication sécurisée avec Sonatel Orange</p>
+              <h3 className="text-sm font-bold text-white">Validation UnitechPay Sénégal...</h3>
+              <p className="text-xs text-neutral-400">Paiement sécurisé via api.unitech.sn</p>
             </div>
           )}
 
@@ -149,9 +161,9 @@ export const OrangeMoneyPaymentModal: React.FC<OrangeMoneyPaymentModalProps> = (
                 <CheckCircle className="w-8 h-8" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-white">Paiement Orange Money Réussi !</h3>
+                <h3 className="text-base font-bold text-white">Paiement Réussi via UnitechPay Orange Money !</h3>
                 <p className="text-xs text-neutral-400 font-mono mt-1">
-                  Transaction: {processedPayment.transactionId}
+                  Réf UnitechPay: {processedPayment.transactionId}
                 </p>
               </div>
 

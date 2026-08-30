@@ -90,6 +90,8 @@ export const SENEGAL_LOCALITIES: Record<SenegalRegion, string[]> = {
   Tambacounda: ['Tambacounda Ville', 'Bakel', 'Goudiry'],
 };
 
+export type SubscriptionPlan = 'MONTHLY' | 'QUARTERLY' | 'ANNUAL';
+
 export interface User {
   id: string;
   phone: string;
@@ -100,6 +102,9 @@ export interface User {
   proofOfOwnershipUrl?: string;
   email?: string;
   createdAt: string;
+  subscriptionStatus?: 'FREE' | 'PRO';
+  subscriptionPlan?: SubscriptionPlan;
+  subscriptionExpiresAt?: string;
 }
 
 export interface Property {

@@ -12,6 +12,7 @@ import {
   UserRole,
   PaymentMethod,
   InventoryItem,
+  SubscriptionPlan,
 } from '../types';
 import {
   INITIAL_USER_LANDLORD,
@@ -35,6 +36,7 @@ interface AppContextType {
   toggleRole: () => void;
   currentUser: User;
   updateUserVerification: (idCardUrl: string, proofUrl: string) => void;
+  upgradeSubscription: (plan: SubscriptionPlan) => void;
   properties: Property[];
   addProperty: (propertyData: Omit<Property, 'id' | 'createdAt' | 'ownerId' | 'ownerName' | 'ownerPhone' | 'ownerVerified'>) => Property;
   updateProperty: (propertyId: string, updatedData: Partial<Property>) => void;
@@ -362,6 +364,44 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
       return updated;
     });
+  };
+
+  const upgradeSubscription = (plan: SubscriptionPlan) => {
+    setLandlordUser((prev) => {
+      const updated: User = {
+        ...prev,
+        subscriptionStatus: 'PRO',
+        subscriptionPlan: plan,
+        subscriptionExpiresAt: new Date(
+          Date.now() + (plan === 'MONTHLY' ? 30 : plan === 'QUARTERLY' ? 90 : 365) * 86400000
+        ).toISOString(),
+      };
+
+      try {
+        localStorage.setItem('immo_user', JSON.stringify(updated));
+      } catch (e) {}
+
+      const client = getSupabase();
+      if (client) {
+        client.from('profiles').update({
+          subscription_status: 'PRO',
+          subscription_plan: plan,
+        }).eq('id', prev.id);
+      }
+
+      return updated;
+    });
+
+    const planPrice = plan === 'MONTHLY' ? '10 000 FCFA / mois' : plan === 'QUARTERLY' ? '25 000 FCFA / 3 mois' : '80 000 FCFA / an';
+    setSmsNotifications((prev) => [
+      {
+        id: `sms_${Date.now()}`,
+        phone: landlordUser.phone,
+        message: `Félicitations ! Votre abonnement Bailleur Pro (${planPrice}) est actif. Vous bénéficiez de la publication de biens illimitée sur ImmoConnect.`,
+        timestamp: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+      },
+      ...prev,
+    ]);
   };
 
   const addProperty = (propertyData: Omit<Property, 'id' | 'createdAt' | 'ownerId' | 'ownerName' | 'ownerPhone' | 'ownerVerified'>) => {
@@ -946,6 +986,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         toggleRole,
         currentUser,
         updateUserVerification,
+        upgradeSubscription,
         properties,
         addProperty,
         updateProperty,

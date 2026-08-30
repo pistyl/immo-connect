@@ -19,7 +19,9 @@ import { AuthModal } from '../components/AuthModal';
 import { DeletePropertyModal } from '../components/DeletePropertyModal';
 import { CreatePaymentModal } from '../components/CreatePaymentModal';
 import { ManualPaymentModal } from '../components/ManualPaymentModal';
+import { SubscriptionModal } from '../components/SubscriptionModal';
 import {
+  Crown,
   Search,
   SlidersHorizontal,
   MapPin,
@@ -92,6 +94,7 @@ export default function HomePage() {
   const [paymentSearchQuery, setPaymentSearchQuery] = useState('');
   const [activeReceiptModal, setActiveReceiptModal] = useState<Payment | null>(null);
   const [isVerificationOpen, setIsVerificationOpen] = useState(false);
+  const [isSubscriptionOpen, setIsSubscriptionOpen] = useState(false);
 
   // Chat State
   const [activeChatPropertyId, setActiveChatPropertyId] = useState<string | null>(
@@ -121,6 +124,15 @@ export default function HomePage() {
       ? p.ownerId === currentUser.id || p.ownerName === currentUser.name || (!p.ownerId && currentUser.name === 'Ibrahima Samb')
       : true
   );
+
+  const handleOpenCreateProperty = () => {
+    if (userProperties.length >= 5 && currentUser.subscriptionStatus !== 'PRO') {
+      setIsSubscriptionOpen(true);
+    } else {
+      setEditingProperty(null);
+      setIsCreateOpen(true);
+    }
+  };
 
   const userLeases = leases.filter((l) =>
     currentRole === 'LANDLORD'
@@ -173,7 +185,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
       {/* Top Sticky Navbar */}
-      <Navbar onOpenCreateProperty={() => setIsCreateOpen(true)} />
+      <Navbar onOpenCreateProperty={handleOpenCreateProperty} />
 
       {/* Main Page Container */}
       <main className="flex-1 max-w-4xl w-full mx-auto p-4 sm:p-6 space-y-6">
@@ -286,7 +298,7 @@ export default function HomePage() {
 
               {currentRole === 'LANDLORD' && (
                 <button
-                  onClick={() => setIsCreateOpen(true)}
+                  onClick={handleOpenCreateProperty}
                   className="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-1.5 rounded-xl shadow-md flex items-center space-x-1 transition-all"
                 >
                   <Plus className="w-3.5 h-3.5" />
@@ -989,19 +1001,37 @@ export default function HomePage() {
                     <h2 className="font-extrabold text-lg text-white">Tableau de Bord Bailleur</h2>
                     <p className="text-xs text-slate-400">Vue consolidée de votre patrimoine immobilier à Dakar</p>
                   </div>
-                  {currentUser.verificationStatus === 'VERIFIED' ? (
-                    <span className="bg-emerald-950 text-emerald-400 text-xs font-bold px-3 py-1 rounded-full border border-emerald-800 flex items-center space-x-1">
-                      <ShieldCheck className="w-4 h-4" />
-                      <span>Bailleur Vérifié</span>
-                    </span>
-                  ) : (
-                    <button
-                      onClick={() => setIsVerificationOpen(true)}
-                      className="bg-amber-600 text-white text-xs font-bold px-3 py-1.5 rounded-xl shadow"
-                    >
-                      Faire vérifier mon identité
-                    </button>
-                  )}
+                  <div className="flex items-center space-x-2">
+                    {currentUser.subscriptionStatus === 'PRO' ? (
+                      <span className="bg-amber-950 text-amber-300 font-extrabold text-xs px-3 py-1 rounded-full border border-amber-800 flex items-center space-x-1">
+                        <Crown className="w-3.5 h-3.5 text-amber-400" />
+                        <span>Compte Pro (Biens Illimités)</span>
+                      </span>
+                    ) : (
+                      <button
+                        onClick={() => setIsSubscriptionOpen(true)}
+                        className="bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-bold text-xs px-3 py-1.5 rounded-xl shadow-md transition-all flex items-center space-x-1.5"
+                        title="Passer au Plan Pro pour publier sans limite de 5 biens"
+                      >
+                        <Crown className="w-3.5 h-3.5 text-amber-200" />
+                        <span>Formule Pro ({userProperties.length}/5 biens)</span>
+                      </button>
+                    )}
+
+                    {currentUser.verificationStatus === 'VERIFIED' ? (
+                      <span className="bg-emerald-950 text-emerald-400 text-xs font-bold px-3 py-1 rounded-full border border-emerald-800 flex items-center space-x-1">
+                        <ShieldCheck className="w-4 h-4" />
+                        <span>Bailleur Vérifié</span>
+                      </span>
+                    ) : (
+                      <button
+                        onClick={() => setIsVerificationOpen(true)}
+                        className="bg-amber-600 text-white text-xs font-bold px-3 py-1.5 rounded-xl shadow"
+                      >
+                        Faire vérifier mon identité
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 {/* Financial KPI Cards */}
@@ -1021,7 +1051,7 @@ export default function HomePage() {
                   <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl text-center">
                     <span className="text-[11px] text-slate-400 uppercase font-semibold block">Biens Gérés</span>
                     <span className="text-base sm:text-lg font-black text-white mt-1 block">
-                      {userProperties.length}
+                      {userProperties.length} {currentUser.subscriptionStatus === 'PRO' ? '(Illimité)' : '/ 5 max'}
                     </span>
                   </div>
                 </div>
@@ -1031,10 +1061,7 @@ export default function HomePage() {
                   <div className="flex justify-between items-center">
                     <h3 className="font-bold text-sm text-white">Mes Propriétés à Dakar</h3>
                     <button
-                      onClick={() => {
-                        setEditingProperty(null);
-                        setIsCreateOpen(true);
-                      }}
+                      onClick={handleOpenCreateProperty}
                       className="text-xs font-bold text-emerald-400 hover:text-emerald-300 flex items-center space-x-1"
                     >
                       <Plus className="w-3.5 h-3.5" />
@@ -1046,10 +1073,7 @@ export default function HomePage() {
                     <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 text-center space-y-3">
                       <p className="text-xs text-slate-400">Vous n'avez aucune propriété enregistrée.</p>
                       <button
-                        onClick={() => {
-                          setEditingProperty(null);
-                          setIsCreateOpen(true);
-                        }}
+                        onClick={handleOpenCreateProperty}
                         className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow transition-all inline-flex items-center space-x-1.5"
                       >
                         <Plus className="w-4 h-4" />
@@ -1267,6 +1291,12 @@ export default function HomePage() {
       <ProfileVerificationModal
         isOpen={isVerificationOpen}
         onClose={() => setIsVerificationOpen(false)}
+      />
+
+      <SubscriptionModal
+        isOpen={isSubscriptionOpen}
+        onClose={() => setIsSubscriptionOpen(false)}
+        currentPropertyCount={userProperties.length}
       />
 
       <AuthModal isOpen={isAuthModalOpen} onClose={closeAuthModal} />

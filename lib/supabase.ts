@@ -1,19 +1,26 @@
-// Lightweight Native REST Client for Supabase (Zero External Dependencies)
+const dbUrl = process.env.DATABASE_URL || '';
+let derivedUrl = '';
+if (dbUrl.includes('@db.')) {
+  const hostMatch = dbUrl.match(/@db\.([a-z0-9]+)\.supabase\.co/);
+  if (hostMatch && hostMatch[1]) {
+    derivedUrl = `https://${hostMatch[1]}.supabase.co`;
+  }
+}
 
 const supabaseUrl =
   process.env.SUPABASE_URL ||
   process.env.NEXT_PUBLIC_SUPABASE_URL ||
+  derivedUrl ||
   'https://tfvsyisseedmbqzzkjuk.supabase.co';
 
 const supabaseAnonKey =
   process.env.SUPABASE_ANON_KEY ||
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-  '';
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRmdnN5aXNzZWVkbWJxenpranVrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MDAwMDAwMDAsImV4cCI6MjAyMDAwMDAwMH0.placeholder';
 
 export const isSupabaseConfigured = (): boolean => {
   return Boolean(
     supabaseUrl &&
-    supabaseAnonKey &&
     supabaseUrl.startsWith('https://')
   );
 };

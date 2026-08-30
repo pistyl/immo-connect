@@ -118,12 +118,13 @@ export default function HomePage() {
     return matchesSearch && matchesRegion && matchesNeighborhood && matchesType && matchesPrice;
   });
 
-  // User Scoped Data (Strict Multi-Tenant SaaS Isolation & Data Protection)
+  // User Scoped Data (Strict Multi-Tenant SaaS Isolation - ID & Phone Only)
+  const normUserPhone = currentUser.phone ? currentUser.phone.replace(/\s+/g, '') : '';
+
   const userProperties = properties.filter((p) =>
     currentRole === 'LANDLORD'
       ? (p.ownerId && p.ownerId === currentUser.id) ||
-        (p.ownerPhone && currentUser.phone && p.ownerPhone.replace(/\s+/g, '') === currentUser.phone.replace(/\s+/g, '')) ||
-        (p.ownerName && currentUser.name && p.ownerName.toLowerCase() === currentUser.name.toLowerCase())
+        (p.ownerPhone && normUserPhone && p.ownerPhone.replace(/\s+/g, '') === normUserPhone)
       : true
   );
 
@@ -139,11 +140,9 @@ export default function HomePage() {
   const userLeases = leases.filter((l) =>
     currentRole === 'LANDLORD'
       ? (l.landlordId && l.landlordId === currentUser.id) ||
-        (l.landlordPhone && currentUser.phone && l.landlordPhone.replace(/\s+/g, '') === currentUser.phone.replace(/\s+/g, '')) ||
-        (l.landlordName && currentUser.name && l.landlordName.toLowerCase() === currentUser.name.toLowerCase())
+        (l.landlordPhone && normUserPhone && l.landlordPhone.replace(/\s+/g, '') === normUserPhone)
       : (l.tenantId && l.tenantId === currentUser.id) ||
-        (l.tenantPhone && currentUser.phone && l.tenantPhone.replace(/\s+/g, '') === currentUser.phone.replace(/\s+/g, '')) ||
-        (l.tenantName && currentUser.name && l.tenantName.toLowerCase() === currentUser.name.toLowerCase())
+        (l.tenantPhone && normUserPhone && l.tenantPhone.replace(/\s+/g, '') === normUserPhone)
   );
 
   const userPayments = payments.filter((p) =>
@@ -151,24 +150,19 @@ export default function HomePage() {
       ? (p.landlordId && p.landlordId === currentUser.id) ||
         userLeases.some((l) => l.id === p.leaseId)
       : (p.tenantId && p.tenantId === currentUser.id) ||
-        (p.tenantPhone && currentUser.phone && p.tenantPhone.replace(/\s+/g, '') === currentUser.phone.replace(/\s+/g, '')) ||
-        (p.tenantName && currentUser.name && p.tenantName.toLowerCase() === currentUser.name.toLowerCase()) ||
+        (p.tenantPhone && normUserPhone && p.tenantPhone.replace(/\s+/g, '') === normUserPhone) ||
         userLeases.some((l) => l.id === p.leaseId)
   );
 
   const userInventoryReports = inventoryReports.filter((inv) =>
-    userLeases.some((l) => l.id === inv.leaseId) ||
-    (inv.tenantName && currentUser.name && inv.tenantName.toLowerCase() === currentUser.name.toLowerCase()) ||
-    (inv.landlordName && currentUser.name && inv.landlordName.toLowerCase() === currentUser.name.toLowerCase())
+    userLeases.some((l) => l.id === inv.leaseId)
   );
 
   const userConversations = conversations.filter((c) =>
     currentRole === 'LANDLORD'
       ? (c.landlordId && c.landlordId === currentUser.id) ||
-        (c.landlordName && currentUser.name && c.landlordName.toLowerCase() === currentUser.name.toLowerCase()) ||
         userProperties.some((p) => p.id === c.propertyId)
-      : (c.tenantId && c.tenantId === currentUser.id) ||
-        (c.tenantName && currentUser.name && c.tenantName.toLowerCase() === currentUser.name.toLowerCase())
+      : (c.tenantId && c.tenantId === currentUser.id)
   );
 
   // Financial Stats (SaaS Scoped)

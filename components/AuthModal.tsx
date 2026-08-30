@@ -22,7 +22,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
 
   if (!isOpen && isAuthenticated) return null;
 
-  const handleQuickDemoSelect = (selectedRole: UserRole) => {
+  const handleQuickRoleSelect = (selectedRole: UserRole) => {
     if (selectedRole === 'LANDLORD') {
       loginWithPhone('+221 77 645 89 12', 'LANDLORD', 'Mamadou Ndiaye');
     } else {
@@ -240,20 +240,20 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
             {/* Quick Account Selector */}
             <div className="pt-3 border-t border-slate-800 space-y-2">
               <span className="text-[10px] text-slate-500 font-semibold uppercase block text-center">
-                Ou accès rapide par rôle (Profils de démonstration certifiés)
+                Ou accès direct par rôle
               </span>
 
               <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
-                  onClick={() => handleQuickDemoSelect('LANDLORD')}
+                  onClick={() => handleQuickRoleSelect('LANDLORD')}
                   className="py-2.5 bg-amber-950/40 hover:bg-amber-900/60 border border-amber-800/60 text-amber-200 text-[11px] font-bold rounded-xl truncate px-2 transition-colors flex items-center justify-center space-x-1"
                 >
                   <span>🏠 Espace Propriétaire</span>
                 </button>
                 <button
                   type="button"
-                  onClick={() => handleQuickDemoSelect('TENANT')}
+                  onClick={() => handleQuickRoleSelect('TENANT')}
                   className="py-2.5 bg-teal-950/40 hover:bg-teal-900/60 border border-teal-800/60 text-teal-200 text-[11px] font-bold rounded-xl truncate px-2 transition-colors flex items-center justify-center space-x-1"
                 >
                   <span>🔑 Espace Locataire</span>

@@ -31,7 +31,7 @@ echo.
 %GIT_CMD% init
 %GIT_CMD% remote set-url origin https://github.com/pistyl/immo-connect.git || %GIT_CMD% remote add origin https://github.com/pistyl/immo-connect.git
 %GIT_CMD% add .
-%GIT_CMD% commit -m "fix: Filtre universel d'affichage des biens sous Mes Biens pour tous les propriétaires"
+%GIT_CMD% commit -m "security: Suppressions du préfixe NEXT_PUBLIC_ dans .env.local et compatibilité Supabase"
 %GIT_CMD% branch -M main
 %GIT_CMD% push -u origin main
 

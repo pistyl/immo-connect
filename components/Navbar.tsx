@@ -86,7 +86,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenCreateProperty }) => {
           <button
             onClick={() => setShowSmsDrawer(!showSmsDrawer)}
             className="relative p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors"
-            title="Notifications SMS Simulation"
+            title="Notifications SMS & Alertes"
           >
             <Bell className="w-4 h-4" />
             {smsNotifications.length > 0 && (
@@ -161,7 +161,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenCreateProperty }) => {
         </div>
       </div>
 
-      {/* Simulated SMS Drawer Modal */}
+      {/* SMS Drawer Modal */}
       {showSmsDrawer && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex justify-end">
           <div className="bg-slate-900 w-full max-w-md h-full shadow-2xl p-4 flex flex-col justify-between border-l border-slate-800 animate-in slide-in-from-right duration-200">
@@ -172,8 +172,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenCreateProperty }) => {
                     <Phone className="w-4 h-4" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-sm text-white">Alertes SMS & Fallback Réseau</h3>
-                    <p className="text-xs text-slate-400">Simulateur SMS Sénégal (+221)</p>
+                    <h3 className="font-bold text-sm text-white">Alertes SMS & Notifications</h3>
+                    <p className="text-xs text-slate-400">Centre d'Alertes SMS Sénégal (+221)</p>
                   </div>
                 </div>
                 <button
@@ -187,7 +187,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenCreateProperty }) => {
               <div className="mt-4 space-y-3 max-h-[70vh] overflow-y-auto pr-1">
                 {smsNotifications.length === 0 ? (
                   <div className="text-center py-8 text-slate-500 text-xs">
-                    Aucun SMS simulé pour le moment.
+                    Aucune alerte SMS enregistrée pour le moment.
                     <br />
                     Les notifications de paiement et alertes de messagerie s'afficheront ici.
                   </div>

@@ -987,6 +987,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         currentRole,
         toggleRole,
         currentUser,
+        landlordUser,
+        tenantUser,
         updateUserVerification,
         upgradeSubscription,
         properties,

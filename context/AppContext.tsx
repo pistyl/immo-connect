@@ -149,6 +149,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             approxLocation: p.approx_location,
             createdAt: p.created_at,
           }));
+
           setProperties(mappedProps);
           setSupabaseConnected(true);
         }

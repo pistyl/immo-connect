@@ -31,7 +31,7 @@ echo.
 %GIT_CMD% init
 %GIT_CMD% remote set-url origin https://github.com/pistyl/immo-connect.git || %GIT_CMD% remote add origin https://github.com/pistyl/immo-connect.git
 %GIT_CMD% add .
-%GIT_CMD% commit -m "fix: Utilisation dynamique du véritable numéro saisi par l'utilisateur sans numéro de test simulé"
+%GIT_CMD% commit -m "security: Isolation stricte des données et protection de la confidentialité par compte utilisateur"
 %GIT_CMD% branch -M main
 %GIT_CMD% push -u origin main
 

@@ -11,18 +11,43 @@ import {
 } from 'lucide-react';
 
 export const BottomNav: React.FC = () => {
-  const { activeTab, setActiveTab, currentRole, currentUser, conversations, payments } = useApp();
+  const { activeTab, setActiveTab, currentRole, currentUser, properties, leases, conversations, payments } = useApp();
+
+  // Dynamic user-scoped properties & leases
+  const userProperties = properties.filter((p) =>
+    currentRole === 'LANDLORD'
+      ? (p.ownerId && p.ownerId === currentUser.id) ||
+        (p.ownerPhone && currentUser.phone && p.ownerPhone.replace(/\s+/g, '') === currentUser.phone.replace(/\s+/g, '')) ||
+        (p.ownerName && currentUser.name && p.ownerName.toLowerCase() === currentUser.name.toLowerCase())
+      : true
+  );
+
+  const userLeases = leases.filter((l) =>
+    currentRole === 'LANDLORD'
+      ? (l.landlordId && l.landlordId === currentUser.id) ||
+        (l.landlordPhone && currentUser.phone && l.landlordPhone.replace(/\s+/g, '') === currentUser.phone.replace(/\s+/g, '')) ||
+        (l.landlordName && currentUser.name && l.landlordName.toLowerCase() === currentUser.name.toLowerCase())
+      : (l.tenantId && l.tenantId === currentUser.id) ||
+        (l.tenantPhone && currentUser.phone && l.tenantPhone.replace(/\s+/g, '') === currentUser.phone.replace(/\s+/g, '')) ||
+        (l.tenantName && currentUser.name && l.tenantName.toLowerCase() === currentUser.name.toLowerCase())
+  );
 
   const userConversations = conversations.filter((c) =>
     currentRole === 'LANDLORD'
-      ? c.landlordId === currentUser.id || c.landlordName === currentUser.name || (!c.landlordId && currentUser.name === 'Ibrahima Samb')
-      : c.tenantId === currentUser.id || c.tenantName === currentUser.name || (c.tenantId === 'usr_tenant_aissatou' && currentUser.name === 'Aïssatou Sow')
+      ? (c.landlordId && c.landlordId === currentUser.id) ||
+        (c.landlordName && currentUser.name && c.landlordName.toLowerCase() === currentUser.name.toLowerCase()) ||
+        userProperties.some((p) => p.id === c.propertyId)
+      : (c.tenantId && c.tenantId === currentUser.id) ||
+        (c.tenantName && currentUser.name && c.tenantName.toLowerCase() === currentUser.name.toLowerCase())
   );
 
   const userPayments = payments.filter((p) =>
     currentRole === 'LANDLORD'
-      ? p.landlordId === currentUser.id || (p.landlordId === 'usr_landlord_mamadou' && currentUser.name === 'Ibrahima Samb')
-      : p.tenantId === currentUser.id || (p.tenantId === 'usr_tenant_aissatou' && currentUser.name === 'Aïssatou Sow')
+      ? (p.landlordId && p.landlordId === currentUser.id) ||
+        userLeases.some((l) => l.id === p.leaseId)
+      : (p.tenantId && p.tenantId === currentUser.id) ||
+        (p.tenantName && currentUser.name && p.tenantName.toLowerCase() === currentUser.name.toLowerCase()) ||
+        userLeases.some((l) => l.id === p.leaseId)
   );
 
   const unreadMsgCount = userConversations.reduce((acc, c) => acc + c.messages.length, 0);

@@ -31,7 +31,7 @@ echo.
 %GIT_CMD% init
 %GIT_CMD% remote set-url origin https://github.com/pistyl/immo-connect.git || %GIT_CMD% remote add origin https://github.com/pistyl/immo-connect.git
 %GIT_CMD% add .
-%GIT_CMD% commit -m "fix: Activation intégrale du badge Supabase Live et variables Next.js"
+%GIT_CMD% commit -m "style: Suppression de la pastille de mode et finalisation application 100% fonctionnelle"
 %GIT_CMD% branch -M main
 %GIT_CMD% push -u origin main
 

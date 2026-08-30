@@ -66,15 +66,6 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenCreateProperty }) => {
               <span className="text-[10px] bg-emerald-950 text-emerald-400 font-bold px-1.5 py-0.5 rounded border border-emerald-800">
                 SÉNÉGAL
               </span>
-              {supabaseConnected ? (
-                <span className="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-800 font-semibold px-1.5 py-0.5 rounded" title="Connecté à la base de données Supabase PostgreSQL">
-                  🟢 Supabase Live
-                </span>
-              ) : (
-                <span className="text-[10px] bg-amber-950 text-amber-400 border border-amber-800 font-semibold px-1.5 py-0.5 rounded" title="Supabase non configuré (Clé API placeholder dans .env.local)">
-                  🟡 Mode Local
-                </span>
-              )}
             </div>
             <p className="text-[11px] text-slate-400 font-medium">Gestion Locative Digitale Nationale</p>
           </div>

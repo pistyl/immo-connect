@@ -225,6 +225,7 @@ export interface Payment {
   propertyTitle: string;
   tenantId: string;
   tenantName: string;
+  tenantPhone?: string;
   landlordId: string;
   amount: number; // FCFA
   periodMonth: string; // e.g. "Août 2026"

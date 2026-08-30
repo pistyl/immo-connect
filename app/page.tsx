@@ -151,6 +151,7 @@ export default function HomePage() {
       ? (p.landlordId && p.landlordId === currentUser.id) ||
         userLeases.some((l) => l.id === p.leaseId)
       : (p.tenantId && p.tenantId === currentUser.id) ||
+        (p.tenantPhone && currentUser.phone && p.tenantPhone.replace(/\s+/g, '') === currentUser.phone.replace(/\s+/g, '')) ||
         (p.tenantName && currentUser.name && p.tenantName.toLowerCase() === currentUser.name.toLowerCase()) ||
         userLeases.some((l) => l.id === p.leaseId)
   );

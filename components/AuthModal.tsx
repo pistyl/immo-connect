@@ -3,7 +3,21 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { UserRole } from '../types';
-import { Phone, ArrowRight, Building, UserCheck, User, Sparkles, X, Lock, Eye, EyeOff, LogIn, UserPlus } from 'lucide-react';
+import {
+  Phone,
+  ArrowRight,
+  Building,
+  UserCheck,
+  User,
+  Sparkles,
+  X,
+  Lock,
+  Eye,
+  EyeOff,
+  LogIn,
+  AlertCircle,
+  CheckCircle2,
+} from 'lucide-react';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -13,14 +27,59 @@ interface AuthModalProps {
 export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   const { loginWithPhone, isAuthenticated } = useApp();
 
-  const [mode, setMode] = useState<'REGISTER' | 'LOGIN'>('LOGIN');
+  const [mode, setMode] = useState<'REGISTER' | 'LOGIN'>('REGISTER');
   const [role, setRole] = useState<UserRole>('LANDLORD');
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('+221 ');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   if (!isOpen && isAuthenticated) return null;
+
+  const validateInputs = (): boolean => {
+    setErrorMsg(null);
+
+    // 1. Full Name Validation (in REGISTER mode)
+    if (mode === 'REGISTER') {
+      const trimmedName = fullName.trim();
+      if (!trimmedName || trimmedName.length < 3) {
+        setErrorMsg('Veuillez saisir votre nom complet (Prénom et Nom).');
+        return false;
+      }
+      if (!trimmedName.includes(' ')) {
+        setErrorMsg('Veuillez renseigner à la fois votre prénom et votre nom.');
+        return false;
+      }
+    }
+
+    // 2. Senegal Phone Validation (+221 77 / 78 / 76 / 70 / 75 / 33)
+    const cleanDigits = phone.replace(/\D/g, '');
+    let localNum = cleanDigits;
+    if (cleanDigits.startsWith('221')) {
+      localNum = cleanDigits.slice(3);
+    }
+
+    if (localNum.length !== 9) {
+      setErrorMsg('Le numéro doit comporter exactement 9 chiffres après l\'indicatif +221 (ex: +221 77 123 45 67).');
+      return false;
+    }
+
+    const validPrefixes = ['77', '78', '76', '70', '75', '33'];
+    const prefix = localNum.slice(0, 2);
+    if (!validPrefixes.includes(prefix)) {
+      setErrorMsg('Numéro invalide. Seuls les opérateurs du Sénégal (+221 77, 78, 76, 70, 75, 33) sont acceptés.');
+      return false;
+    }
+
+    // 3. Password Validation
+    if (!password || password.length < 6) {
+      setErrorMsg('Le mot de passe doit comporter au moins 6 caractères.');
+      return false;
+    }
+
+    return true;
+  };
 
   const handleQuickRoleSelect = (selectedRole: UserRole) => {
     if (selectedRole === 'LANDLORD') {
@@ -33,25 +92,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!phone.trim() || phone.length < 8) {
-      alert('Veuillez fournir un numéro de téléphone Sénégal valide (+221).');
-      return;
-    }
-    if (!password || password.length < 4) {
-      alert('Veuillez saisir un mot de passe d\'au moins 4 caractères.');
-      return;
-    }
+
+    if (!validateInputs()) return;
+
+    const formattedPhone = phone.startsWith('+221') ? phone : `+221 ${phone.replace(/^221/, '').trim()}`;
 
     if (mode === 'REGISTER') {
-      if (!fullName.trim()) {
-        alert('Veuillez fournir votre nom complet.');
-        return;
-      }
-      loginWithPhone(phone, role, fullName);
+      loginWithPhone(formattedPhone, role, fullName.trim());
     } else {
-      // Login mode
       const defaultName = role === 'LANDLORD' ? 'Propriétaire Connecté' : 'Locataire Connecté';
-      loginWithPhone(phone, role, fullName.trim() || defaultName);
+      loginWithPhone(formattedPhone, role, fullName.trim() || defaultName);
     }
 
     onClose();
@@ -86,19 +136,27 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="text-center space-y-1">
               <h3 className="text-sm font-bold text-white">
-                {mode === 'REGISTER' ? 'Créer votre compte ImmoConnect' : 'Connexion à votre espace'}
+                {mode === 'REGISTER' ? 'Créer votre compte certifié ImmoConnect' : 'Connexion à votre espace'}
               </h3>
               <p className="text-slate-400 text-[11px]">
                 {mode === 'REGISTER'
-                  ? 'Choisissez votre statut, vos identifiants et votre mot de passe pour débuter.'
-                  : 'Entrez vos identifiants pour vous connecter à votre compte.'}
+                  ? 'Renseignez vos informations vérifiées pour créer votre profil.'
+                  : 'Saisissez vos identifiants pour accéder à vos baux et loyers.'}
               </p>
             </div>
+
+            {/* Error Banner */}
+            {errorMsg && (
+              <div className="bg-rose-950/80 border border-rose-800 text-rose-200 p-3 rounded-xl flex items-start space-x-2 animate-in fade-in duration-150">
+                <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                <span className="text-[11px] leading-relaxed">{errorMsg}</span>
+              </div>
+            )}
 
             {/* Statut / Role Selection Toggle */}
             <div>
               <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                Statut / Rôle *
+                Statut du Compte *
               </label>
               <div className="grid grid-cols-2 gap-3">
                 <button
@@ -140,7 +198,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                   <input
                     type="text"
                     required={mode === 'REGISTER'}
-                    placeholder="Ex: Mamadou Ndiaye ou Fatou Sow"
+                    placeholder="Ex: Cheikh Tidiane Diallo"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500"
@@ -165,12 +223,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                   className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-xs text-white font-mono placeholder-slate-500 focus:outline-none focus:border-emerald-500"
                 />
               </div>
+              <p className="text-[10px] text-slate-500 mt-1">
+                Opérateurs acceptés : Orange (77, 78), Free (76), Expresso (70), Promobile (75).
+              </p>
             </div>
 
             {/* Password */}
             <div>
               <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                Mot de passe *
+                Mot de passe (Min. 6 caractères) *
               </label>
               <div className="relative">
                 <Lock className="w-4 h-4 text-slate-500 absolute left-3.5 top-3.5" />
@@ -200,7 +261,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
               {mode === 'REGISTER' ? (
                 <>
                   <Sparkles className="w-4 h-4" />
-                  <span>S'inscrire & Accéder à l'Application</span>
+                  <span>S'inscrire & Créer mon Compte</span>
                 </>
               ) : (
                 <>
@@ -217,7 +278,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                   Vous avez déjà un compte ?{' '}
                   <button
                     type="button"
-                    onClick={() => setMode('LOGIN')}
+                    onClick={() => {
+                      setMode('LOGIN');
+                      setErrorMsg(null);
+                    }}
                     className="text-emerald-400 font-bold hover:underline"
                   >
                     Se connecter
@@ -228,7 +292,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                   Vous n'avez pas de compte ?{' '}
                   <button
                     type="button"
-                    onClick={() => setMode('REGISTER')}
+                    onClick={() => {
+                      setMode('REGISTER');
+                      setErrorMsg(null);
+                    }}
                     className="text-emerald-400 font-bold hover:underline"
                   >
                     S'inscrire
@@ -240,7 +307,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
             {/* Quick Account Selector */}
             <div className="pt-3 border-t border-slate-800 space-y-2">
               <span className="text-[10px] text-slate-500 font-semibold uppercase block text-center">
-                Ou accès direct par rôle
+                Accès direct Démo par rôle
               </span>
 
               <div className="grid grid-cols-2 gap-2">

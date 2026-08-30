@@ -33,7 +33,6 @@ interface AppContextType {
   openAuthModal: () => void;
   closeAuthModal: () => void;
   currentRole: UserRole;
-  toggleRole: () => void;
   currentUser: User;
   landlordUser: User;
   tenantUser: User;
@@ -288,10 +287,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const openAuthModal = () => setIsAuthModalOpen(true);
   const closeAuthModal = () => setIsAuthModalOpen(false);
-
-  const toggleRole = () => {
-    setCurrentRole((prev) => (prev === 'LANDLORD' ? 'TENANT' : 'LANDLORD'));
-  };
 
   const currentUser = currentRole === 'LANDLORD' ? landlordUser : tenantUser;
 
@@ -930,7 +925,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         openAuthModal,
         closeAuthModal,
         currentRole,
-        toggleRole,
         currentUser,
         landlordUser,
         tenantUser,

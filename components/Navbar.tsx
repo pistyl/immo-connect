@@ -22,7 +22,6 @@ interface NavbarProps {
 export const Navbar: React.FC<NavbarProps> = ({ onOpenCreateProperty }) => {
   const {
     currentRole,
-    toggleRole,
     currentUser,
     isAuthenticated,
     openAuthModal,
@@ -98,13 +97,12 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenCreateProperty }) => {
             </button>
           )}
 
-          {/* Profile Switcher Toggle */}
-          <button
-            onClick={toggleRole}
-            className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all border shadow-sm ${
+          {/* Profile Badge (Static, non-toggleable) */}
+          <div
+            className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-bold border shadow-sm ${
               currentRole === 'LANDLORD'
-                ? 'bg-gradient-to-r from-amber-600 to-orange-600 border-amber-500 text-white'
-                : 'bg-gradient-to-r from-teal-600 to-emerald-600 border-teal-500 text-white'
+                ? 'bg-amber-950/60 border-amber-800/80 text-amber-400'
+                : 'bg-teal-950/60 border-teal-800/80 text-teal-400'
             }`}
           >
             {currentRole === 'LANDLORD' ? (
@@ -118,8 +116,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenCreateProperty }) => {
                 <span>Locataire</span>
               </>
             )}
-            <RefreshCw className="w-3 h-3 ml-0.5 opacity-80" />
-          </button>
+          </div>
         </div>
       </div>
 

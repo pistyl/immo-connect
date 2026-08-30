@@ -31,7 +31,7 @@ echo.
 %GIT_CMD% init
 %GIT_CMD% remote set-url origin https://github.com/pistyl/immo-connect.git || %GIT_CMD% remote add origin https://github.com/pistyl/immo-connect.git
 %GIT_CMD% add .
-%GIT_CMD% commit -m "refactor(database): Suppression intégrale du localStorage au profit d'un stockage 100% basé sur la base de données PostgreSQL"
+%GIT_CMD% commit -m "feat(auth): Validation stricte des données d'inscription (Opérateurs Sénégal 77/78/76/70/75/33, Nom complet et Mot de passe)"
 %GIT_CMD% branch -M main
 %GIT_CMD% push -u origin main
 

@@ -31,7 +31,7 @@ echo.
 %GIT_CMD% init
 %GIT_CMD% remote set-url origin https://github.com/pistyl/immo-connect.git || %GIT_CMD% remote add origin https://github.com/pistyl/immo-connect.git
 %GIT_CMD% add .
-%GIT_CMD% commit -m "feat(auth): Validation stricte des données d'inscription (Opérateurs Sénégal 77/78/76/70/75/33, Nom complet et Mot de passe)"
+%GIT_CMD% commit -m "refactor(search): Suppression totale du filtre et de la limite de budget max"
 %GIT_CMD% branch -M main
 %GIT_CMD% push -u origin main
 

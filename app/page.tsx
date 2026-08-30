@@ -77,7 +77,6 @@ export default function HomePage() {
   const [selectedRegion, setSelectedRegion] = useState<string>('TOUTES');
   const [selectedNeighborhood, setSelectedNeighborhood] = useState<string>('TOUS');
   const [selectedType, setSelectedType] = useState<string>('TOUS');
-  const [maxPrice, setMaxPrice] = useState<number>(700000);
 
   // Modals state
   const [selectedProperty, setSelectedProperty] = useState<Property | null>(null);
@@ -102,9 +101,10 @@ export default function HomePage() {
   );
   const [chatInputText, setChatInputText] = useState('');
 
-  // Filtered Properties
+  // Filtered Properties (No budget limit)
   const filteredProperties = properties.filter((p) => {
     const matchesSearch =
+      !searchQuery ||
       p.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       p.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
       p.region.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -114,8 +114,7 @@ export default function HomePage() {
     const matchesNeighborhood =
       selectedNeighborhood === 'TOUS' || p.neighborhood === selectedNeighborhood;
     const matchesType = selectedType === 'TOUS' || p.type === selectedType;
-    const matchesPrice = p.price <= maxPrice;
-    return matchesSearch && matchesRegion && matchesNeighborhood && matchesType && matchesPrice;
+    return matchesSearch && matchesRegion && matchesNeighborhood && matchesType;
   });
 
   // User Scoped Data (Strict Multi-Tenant SaaS Isolation - ID & Phone Only)
@@ -278,23 +277,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Secondary Filter Bar */}
-            <div className="flex items-center justify-between bg-slate-900 p-3 rounded-2xl border border-slate-800 text-xs">
-              <div className="flex items-center space-x-2">
-                <SlidersHorizontal className="w-3.5 h-3.5 text-slate-400" />
-                <span className="text-slate-400">Budget max : </span>
-                <span className="font-extrabold text-emerald-400">{formatFCFA(maxPrice)}</span>
-              </div>
-              <input
-                type="range"
-                min={100000}
-                max={1000000}
-                step={50000}
-                value={maxPrice}
-                onChange={(e) => setMaxPrice(Number(e.target.value))}
-                className="w-28 sm:w-40 accent-emerald-500 cursor-pointer"
-              />
-            </div>
+
 
             {/* Properties Grid Header */}
             <div className="flex justify-between items-center pt-2">

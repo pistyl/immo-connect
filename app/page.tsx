@@ -116,7 +116,7 @@ export default function HomePage() {
   });
 
   // Selected Active Chat
-  const currentChat = conversations.find((c) => c.propertyId === activeChatPropertyId) || conversations[0];
+  const currentChat = userConversations.find((c) => c.propertyId === activeChatPropertyId) || userConversations[0];
 
   const handleSendMessageSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -135,11 +135,40 @@ export default function HomePage() {
     setChatInputText('');
   };
 
-  // Financial Stats
-  const totalCollected = payments
+  // User Scoped Data (SaaS Multi-Tenant Isolation)
+  const userProperties = properties.filter((p) =>
+    currentRole === 'LANDLORD'
+      ? p.ownerId === currentUser.id || p.ownerName === currentUser.name || (!p.ownerId && currentUser.name === 'Ibrahima Samb')
+      : true
+  );
+
+  const userLeases = leases.filter((l) =>
+    currentRole === 'LANDLORD'
+      ? l.landlordId === currentUser.id || l.landlordName === currentUser.name || (!l.landlordId && currentUser.name === 'Ibrahima Samb')
+      : l.tenantId === currentUser.id || l.tenantName === currentUser.name || (!l.tenantId && currentUser.name === 'Aïssatou Sow')
+  );
+
+  const userPayments = payments.filter((p) =>
+    currentRole === 'LANDLORD'
+      ? p.landlordId === currentUser.id || (p.landlordId === 'usr_landlord_mamadou' && currentUser.name === 'Ibrahima Samb')
+      : p.tenantId === currentUser.id || (p.tenantId === 'usr_tenant_aissatou' && currentUser.name === 'Aïssatou Sow')
+  );
+
+  const userInventoryReports = inventoryReports.filter((inv) =>
+    userLeases.some((l) => l.id === inv.leaseId) || inv.tenantName === currentUser.name || inv.landlordName === currentUser.name
+  );
+
+  const userConversations = conversations.filter((c) =>
+    currentRole === 'LANDLORD'
+      ? c.landlordId === currentUser.id || c.landlordName === currentUser.name || (!c.landlordId && currentUser.name === 'Ibrahima Samb')
+      : c.tenantId === currentUser.id || c.tenantName === currentUser.name || (c.tenantId === 'usr_tenant_aissatou' && currentUser.name === 'Aïssatou Sow')
+  );
+
+  // Financial Stats (SaaS Scoped)
+  const totalCollected = userPayments
     .filter((p) => p.status === 'PAID')
     .reduce((acc, p) => acc + p.amount, 0);
-  const pendingCount = payments.filter((p) => p.status === 'PENDING').length;
+  const pendingCount = userPayments.filter((p) => p.status === 'PENDING').length;
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
@@ -308,7 +337,7 @@ export default function HomePage() {
 
             {/* Conversations list selector */}
             <div className="flex space-x-2 overflow-x-auto pb-1 no-scrollbar">
-              {conversations.map((conv) => {
+              {userConversations.map((conv) => {
                 const isActive = conv.propertyId === currentChat?.propertyId;
                 return (
                   <button
@@ -467,7 +496,7 @@ export default function HomePage() {
               </div>
 
               <div className="space-y-3">
-                {leases.map((lease) => (
+                {userLeases.map((lease) => (
                   <div
                     key={lease.id}
                     className="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 shadow"
@@ -515,7 +544,7 @@ export default function HomePage() {
               </div>
 
               <div className="space-y-3">
-                {inventoryReports.map((inv) => (
+                {userInventoryReports.map((inv) => (
                   <div
                     key={inv.id}
                     className="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 shadow"
@@ -584,7 +613,7 @@ export default function HomePage() {
                     <span className="text-[11px] text-slate-400 uppercase font-semibold block">Total Encaissé</span>
                     <span className="text-base sm:text-lg font-black text-emerald-400 mt-1 block">
                       {formatFCFA(
-                        payments
+                        userPayments
                           .filter((p) => p.status === 'PAID')
                           .reduce((sum, p) => sum + p.amount, 0)
                       )}
@@ -595,7 +624,7 @@ export default function HomePage() {
                     <span className="text-[11px] text-slate-400 uppercase font-semibold block">En Attente</span>
                     <span className="text-base sm:text-lg font-black text-amber-400 mt-1 block">
                       {formatFCFA(
-                        payments
+                        userPayments
                           .filter((p) => p.status === 'PENDING')
                           .reduce((sum, p) => sum + p.amount, 0)
                       )}
@@ -605,16 +634,16 @@ export default function HomePage() {
                   <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
                     <span className="text-[11px] text-slate-400 uppercase font-semibold block">Appels Émis</span>
                     <span className="text-base sm:text-lg font-black text-white mt-1 block">
-                      {payments.length} quittances
+                      {userPayments.length} quittances
                     </span>
                   </div>
 
                   <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
                     <span className="text-[11px] text-slate-400 uppercase font-semibold block">Taux Recouvrement</span>
                     <span className="text-base sm:text-lg font-black text-teal-400 mt-1 block">
-                      {payments.length > 0
+                      {userPayments.length > 0
                         ? Math.round(
-                            (payments.filter((p) => p.status === 'PAID').length / payments.length) * 100
+                            (userPayments.filter((p) => p.status === 'PAID').length / userPayments.length) * 100
                           )
                         : 100}
                       %
@@ -633,7 +662,7 @@ export default function HomePage() {
                           : 'bg-slate-800 text-slate-400 hover:bg-slate-750'
                       }`}
                     >
-                      Tous ({payments.length})
+                      Tous ({userPayments.length})
                     </button>
                     <button
                       onClick={() => setPaymentFilterStatus('PENDING')}
@@ -643,7 +672,7 @@ export default function HomePage() {
                           : 'bg-slate-800 text-slate-400 hover:bg-slate-750'
                       }`}
                     >
-                      En attente ⏳ ({payments.filter((p) => p.status === 'PENDING').length})
+                      En attente ⏳ ({userPayments.filter((p) => p.status === 'PENDING').length})
                     </button>
                     <button
                       onClick={() => setPaymentFilterStatus('PAID')}
@@ -653,7 +682,7 @@ export default function HomePage() {
                           : 'bg-slate-800 text-slate-400 hover:bg-slate-750'
                       }`}
                     >
-                      Payés ✓ ({payments.filter((p) => p.status === 'PAID').length})
+                      Payés ✓ ({userPayments.filter((p) => p.status === 'PAID').length})
                     </button>
                   </div>
 
@@ -671,7 +700,7 @@ export default function HomePage() {
 
                 {/* Payments List for Landlord */}
                 <div className="space-y-3">
-                  {payments
+                  {userPayments
                     .filter((pay) => {
                       const matchesFilter =
                         paymentFilterStatus === 'ALL' || pay.status === paymentFilterStatus;
@@ -973,7 +1002,7 @@ export default function HomePage() {
                   <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl text-center">
                     <span className="text-[11px] text-slate-400 uppercase font-semibold block">Biens Gérés</span>
                     <span className="text-base sm:text-lg font-black text-white mt-1 block">
-                      {properties.filter((p) => !p.ownerId || p.ownerId === currentUser.id || p.ownerId === 'usr_landlord_mamadou' || (p.ownerName && currentUser.name && p.ownerName.toLowerCase().includes(currentUser.name.toLowerCase()))).length}
+                      {userProperties.length}
                     </span>
                   </div>
                 </div>
@@ -994,7 +1023,7 @@ export default function HomePage() {
                     </button>
                   </div>
 
-                  {properties.filter((p) => !p.ownerId || p.ownerId === currentUser.id || p.ownerId === 'usr_landlord_mamadou' || (p.ownerName && currentUser.name && p.ownerName.toLowerCase().includes(currentUser.name.toLowerCase()))).length === 0 ? (
+                  {userProperties.length === 0 ? (
                     <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 text-center space-y-3">
                       <p className="text-xs text-slate-400">Vous n'avez aucune propriété enregistrée.</p>
                       <button
@@ -1010,9 +1039,7 @@ export default function HomePage() {
                     </div>
                   ) : (
                     <div className="space-y-3">
-                      {properties
-                        .filter((p) => !p.ownerId || p.ownerId === currentUser.id || p.ownerId === 'usr_landlord_mamadou' || (p.ownerName && currentUser.name && p.ownerName.toLowerCase().includes(currentUser.name.toLowerCase())))
-                        .map((p) => (
+                      {userProperties.map((p) => (
                           <div
                             key={p.id}
                             className="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:border-slate-700 transition-colors"

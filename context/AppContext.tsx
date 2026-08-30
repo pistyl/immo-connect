@@ -89,37 +89,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [activeTab, setActiveTab] = useState<string>('explore');
   const [supabaseConnected, setSupabaseConnected] = useState<boolean>(false);
 
-  // Network listener & LocalStorage / Supabase hydration
+  // Network listener & Database hydration
   useEffect(() => {
-    try {
-      const savedAuth = localStorage.getItem('immo_authenticated');
-      if (savedAuth === 'true') {
-        setIsAuthenticated(true);
-        setIsAuthModalOpen(false);
-      }
-      const savedRole = localStorage.getItem('immo_role');
-      if (savedRole === 'LANDLORD' || savedRole === 'TENANT') {
-        setCurrentRole(savedRole as UserRole);
-      }
-      const savedUser = localStorage.getItem('immo_user');
-      if (savedUser) {
-        const parsedUser = JSON.parse(savedUser);
-        if (parsedUser.role === 'LANDLORD') setLandlordUser(parsedUser);
-        if (parsedUser.role === 'TENANT') setTenantUser(parsedUser);
-      }
-      const savedProps = localStorage.getItem('immo_properties');
-      if (savedProps) setProperties(JSON.parse(savedProps));
-      
-      const savedLeases = localStorage.getItem('immo_leases');
-      if (savedLeases) setLeases(JSON.parse(savedLeases));
-
-      const savedPayments = localStorage.getItem('immo_payments');
-      if (savedPayments) setPayments(JSON.parse(savedPayments));
-    } catch (e) {
-      console.warn('LocalStorage initialization warning:', e);
-    }
-
-    // Fetch live data from Supabase PostgreSQL if configured
+    // Fetch live data from PostgreSQL Database
     const loadFromSupabase = async () => {
       if (!isSupabaseConfigured()) return;
       const client = getSupabase();
@@ -272,25 +244,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
   }, []);
 
-  // Save changes to localStorage as backup
-  useEffect(() => {
-    try {
-      localStorage.setItem('immo_role', currentRole);
-      localStorage.setItem('immo_properties', JSON.stringify(properties));
-      localStorage.setItem('immo_leases', JSON.stringify(leases));
-      localStorage.setItem('immo_payments', JSON.stringify(payments));
-    } catch (e) {
-      // storage quota or SSR edge
-    }
-  }, [currentRole, properties, leases, payments]);
-
   const loginWithPhone = (phone: string, role: UserRole, name?: string) => {
     setCurrentRole(role);
     setIsAuthenticated(true);
-    try {
-      localStorage.setItem('immo_authenticated', 'true');
-      localStorage.setItem('immo_role', role);
-    } catch (e) {}
 
     const updatedUser: User = {
       id: `usr_${Date.now()}`,
@@ -306,10 +262,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     } else {
       setTenantUser(updatedUser);
     }
-
-    try {
-      localStorage.setItem('immo_user', JSON.stringify(updatedUser));
-    } catch (e) {}
 
     // Persist profile to Supabase
     const client = getSupabase();
@@ -331,10 +283,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const logout = () => {
     setIsAuthenticated(false);
-    try {
-      localStorage.removeItem('immo_authenticated');
-      localStorage.removeItem('immo_user');
-    } catch (e) {}
     setIsAuthModalOpen(true);
   };
 
@@ -379,10 +327,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           Date.now() + (plan === 'MONTHLY' ? 30 : plan === 'QUARTERLY' ? 90 : 365) * 86400000
         ).toISOString(),
       };
-
-      try {
-        localStorage.setItem('immo_user', JSON.stringify(updated));
-      } catch (e) {}
 
       const client = getSupabase();
       if (client) {

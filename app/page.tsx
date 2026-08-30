@@ -115,26 +115,6 @@ export default function HomePage() {
     return matchesSearch && matchesRegion && matchesNeighborhood && matchesType && matchesPrice;
   });
 
-  // Selected Active Chat
-  const currentChat = userConversations.find((c) => c.propertyId === activeChatPropertyId) || userConversations[0];
-
-  const handleSendMessageSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!chatInputText.trim() || !currentChat) return;
-    const recipientRole = currentRole === 'LANDLORD' ? 'TENANT' : 'LANDLORD';
-    sendMessage(currentChat.propertyId, chatInputText, recipientRole);
-    setChatInputText('');
-  };
-
-  const handleTriggerSmsFallback = () => {
-    if (!currentChat || !chatInputText.trim()) {
-      alert('Veuillez d\'abord saisir un message avant d\'envoyer le SMS de secours.');
-      return;
-    }
-    sendSmsFallback(currentChat.id, chatInputText);
-    setChatInputText('');
-  };
-
   // User Scoped Data (SaaS Multi-Tenant Isolation)
   const userProperties = properties.filter((p) =>
     currentRole === 'LANDLORD'
@@ -169,6 +149,26 @@ export default function HomePage() {
     .filter((p) => p.status === 'PAID')
     .reduce((acc, p) => acc + p.amount, 0);
   const pendingCount = userPayments.filter((p) => p.status === 'PENDING').length;
+
+  // Selected Active Chat
+  const currentChat = userConversations.find((c) => c.propertyId === activeChatPropertyId) || userConversations[0];
+
+  const handleSendMessageSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!chatInputText.trim() || !currentChat) return;
+    const recipientRole = currentRole === 'LANDLORD' ? 'TENANT' : 'LANDLORD';
+    sendMessage(currentChat.propertyId, chatInputText, recipientRole);
+    setChatInputText('');
+  };
+
+  const handleTriggerSmsFallback = () => {
+    if (!currentChat || !chatInputText.trim()) {
+      alert('Veuillez d\'abord saisir un message avant d\'envoyer le SMS de secours.');
+      return;
+    }
+    sendSmsFallback(currentChat.id, chatInputText);
+    setChatInputText('');
+  };
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">

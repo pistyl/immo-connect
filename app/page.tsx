@@ -700,97 +700,116 @@ export default function HomePage() {
 
                 {/* Payments List for Landlord */}
                 <div className="space-y-3">
-                  {userPayments
-                    .filter((pay) => {
-                      const matchesFilter =
-                        paymentFilterStatus === 'ALL' || pay.status === paymentFilterStatus;
-                      const matchesSearch =
-                        pay.propertyTitle.toLowerCase().includes(paymentSearchQuery.toLowerCase()) ||
-                        pay.tenantName.toLowerCase().includes(paymentSearchQuery.toLowerCase()) ||
-                        pay.periodMonth.toLowerCase().includes(paymentSearchQuery.toLowerCase());
-                      return matchesFilter && matchesSearch;
-                    })
-                    .map((pay) => (
-                      <div
-                        key={pay.id}
-                        className={`bg-slate-900 border rounded-2xl p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 shadow transition-all ${
-                          pay.status === 'PAID'
-                            ? 'border-emerald-800/60 bg-emerald-950/10'
-                            : 'border-amber-800/60 bg-amber-950/10'
-                        }`}
+                  {userPayments.length === 0 ? (
+                    <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 text-center space-y-4">
+                      <CreditCard className="w-10 h-10 text-emerald-400 mx-auto" />
+                      <div>
+                        <h3 className="text-sm font-bold text-white">Aucun appel de loyer émis pour le moment</h3>
+                        <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
+                          Émettez un appel de loyer à votre locataire pour lui permettre de régler son loyer par Wave, Orange Money ou en espèces.
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => setIsCreatePaymentOpen(true)}
+                        className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-lg transition-all inline-flex items-center space-x-1.5"
                       >
-                        <div>
-                          <div className="flex items-center space-x-2 flex-wrap gap-y-1">
-                            <span className="font-extrabold text-white text-base">
-                              {formatFCFA(pay.amount)}
-                            </span>
-                            <span className="text-xs text-slate-300 font-semibold">• Loyer {pay.periodMonth}</span>
-                            {pay.status === 'PAID' ? (
-                              <span className="bg-emerald-950 text-emerald-400 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-emerald-800 flex items-center space-x-1">
-                                <CheckCircle2 className="w-3 h-3" />
-                                <span>Encaissé</span>
+                        <Plus className="w-4 h-4" />
+                        <span>Créer un appel de loyer</span>
+                      </button>
+                    </div>
+                  ) : (
+                    userPayments
+                      .filter((pay) => {
+                        const matchesFilter =
+                          paymentFilterStatus === 'ALL' || pay.status === paymentFilterStatus;
+                        const matchesSearch =
+                          pay.propertyTitle.toLowerCase().includes(paymentSearchQuery.toLowerCase()) ||
+                          pay.tenantName.toLowerCase().includes(paymentSearchQuery.toLowerCase()) ||
+                          pay.periodMonth.toLowerCase().includes(paymentSearchQuery.toLowerCase());
+                        return matchesFilter && matchesSearch;
+                      })
+                      .map((pay) => (
+                        <div
+                          key={pay.id}
+                          className={`bg-slate-900 border rounded-2xl p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 shadow transition-all ${
+                            pay.status === 'PAID'
+                              ? 'border-emerald-800/60 bg-emerald-950/10'
+                              : 'border-amber-800/60 bg-amber-950/10'
+                          }`}
+                        >
+                          <div>
+                            <div className="flex items-center space-x-2 flex-wrap gap-y-1">
+                              <span className="font-extrabold text-white text-base">
+                                {formatFCFA(pay.amount)}
                               </span>
-                            ) : (
-                              <span className="bg-amber-950 text-amber-400 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-amber-800">
-                                ⏳ En attente locataire (Échéance : {pay.dueDate})
-                              </span>
+                              <span className="text-xs text-slate-300 font-semibold">• Loyer {pay.periodMonth}</span>
+                              {pay.status === 'PAID' ? (
+                                <span className="bg-emerald-950 text-emerald-400 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-emerald-800 flex items-center space-x-1">
+                                  <CheckCircle2 className="w-3 h-3" />
+                                  <span>Encaissé</span>
+                                </span>
+                              ) : (
+                                <span className="bg-amber-950 text-amber-400 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-amber-800">
+                                  ⏳ En attente locataire (Échéance : {pay.dueDate})
+                                </span>
+                              )}
+                            </div>
+
+                            <div className="text-xs text-slate-300 mt-1 font-medium">
+                              {pay.propertyTitle} — Locataire: <strong>{pay.tenantName}</strong>
+                            </div>
+
+                            {pay.paidDate && (
+                              <div className="text-[11px] text-slate-400 mt-1 flex items-center space-x-1">
+                                <span>
+                                  Encaissement le {new Date(pay.paidDate).toLocaleString('fr-FR')} via{' '}
+                                  <strong className="text-emerald-400">
+                                    {pay.method === 'WAVE' ? 'Wave Sénégal' :
+                                     pay.method === 'ORANGE_MONEY' ? 'Orange Money' :
+                                     pay.method === 'CASH' ? 'Espèces (Cash)' :
+                                     pay.method === 'BANK_TRANSFER' ? 'Virement Bancaire' :
+                                     pay.method === 'CHEQUE' ? 'Chèque Bancaire' : pay.method}
+                                  </strong>
+                                </span>
+                                {pay.transactionId && (
+                                  <span className="font-mono text-slate-500">({pay.transactionId})</span>
+                                )}
+                              </div>
                             )}
                           </div>
 
-                          <div className="text-xs text-slate-300 mt-1 font-medium">
-                            {pay.propertyTitle} — Locataire: <strong>{pay.tenantName}</strong>
+                          <div className="flex items-center space-x-2 w-full sm:w-auto shrink-0">
+                            {pay.status === 'PENDING' ? (
+                              <>
+                                <button
+                                  onClick={() => setManualPayment(pay)}
+                                  className="flex-1 sm:flex-none px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow transition-all flex items-center justify-center space-x-1"
+                                  title="Enregistrer un versement en espèces ou virement"
+                                >
+                                  <DollarSign className="w-3.5 h-3.5" />
+                                  <span>Enregistrer Encaissement</span>
+                                </button>
+                                <button
+                                  onClick={() => sendRentReminder(pay.id)}
+                                  className="p-2 bg-slate-800 hover:bg-slate-700 text-amber-400 rounded-xl border border-slate-700 transition-colors flex items-center justify-center"
+                                  title="Envoyer une relance par SMS au locataire"
+                                >
+                                  <Send className="w-3.5 h-3.5" />
+                                </button>
+                              </>
+                            ) : (
+                              <button
+                                onClick={() => setActiveReceiptModal(pay)}
+                                className="w-full sm:w-auto px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs rounded-xl border border-slate-700 shadow flex items-center justify-center space-x-1.5 transition-colors"
+                              >
+                                <Download className="w-4 h-4 text-emerald-400" />
+                                <span>Quittance PDF</span>
+                              </button>
+                            )}
                           </div>
-
-                          {pay.paidDate && (
-                            <div className="text-[11px] text-slate-400 mt-1 flex items-center space-x-1">
-                              <span>
-                                Encaissement le {new Date(pay.paidDate).toLocaleString('fr-FR')} via{' '}
-                                <strong className="text-emerald-400">
-                                  {pay.method === 'WAVE' ? 'Wave Sénégal' :
-                                   pay.method === 'ORANGE_MONEY' ? 'Orange Money' :
-                                   pay.method === 'CASH' ? 'Espèces (Cash)' :
-                                   pay.method === 'BANK_TRANSFER' ? 'Virement Bancaire' :
-                                   pay.method === 'CHEQUE' ? 'Chèque Bancaire' : pay.method}
-                                </strong>
-                              </span>
-                              {pay.transactionId && (
-                                <span className="font-mono text-slate-500">({pay.transactionId})</span>
-                              )}
-                            </div>
-                          )}
                         </div>
-
-                        <div className="flex items-center space-x-2 w-full sm:w-auto shrink-0">
-                          {pay.status === 'PENDING' ? (
-                            <>
-                              <button
-                                onClick={() => setManualPayment(pay)}
-                                className="flex-1 sm:flex-none px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow transition-all flex items-center justify-center space-x-1"
-                                title="Enregistrer un versement en espèces ou virement"
-                              >
-                                <DollarSign className="w-3.5 h-3.5" />
-                                <span>Enregistrer Encaissement</span>
-                              </button>
-                              <button
-                                onClick={() => sendRentReminder(pay.id)}
-                                className="p-2 bg-slate-800 hover:bg-slate-700 text-amber-400 rounded-xl border border-slate-700 transition-colors flex items-center justify-center"
-                                title="Envoyer une relance par SMS au locataire"
-                              >
-                                <Send className="w-3.5 h-3.5" />
-                              </button>
-                            </>
-                          ) : (
-                            <button
-                              onClick={() => setActiveReceiptModal(pay)}
-                              className="w-full sm:w-auto px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs rounded-xl border border-slate-700 shadow flex items-center justify-center space-x-1.5 transition-colors"
-                            >
-                              <Download className="w-4 h-4 text-emerald-400" />
-                              <span>Quittance PDF</span>
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    ))}
+                      ))
+                  )}
                 </div>
               </div>
             ) : (

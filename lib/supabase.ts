@@ -14,7 +14,6 @@ export const isSupabaseConfigured = (): boolean => {
   return Boolean(
     supabaseUrl &&
     supabaseAnonKey &&
-    !supabaseAnonKey.includes('placeholder') &&
     supabaseUrl.startsWith('https://')
   );
 };

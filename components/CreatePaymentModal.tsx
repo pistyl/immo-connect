@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { formatFCFA } from '../lib/pdfGenerator';
-import { X, Send, Calendar, DollarSign, Building, UserCheck, Check, Sparkles } from 'lucide-react';
+import { X, Send, Building, User, Phone, Check, Sparkles } from 'lucide-react';
 
 interface CreatePaymentModalProps {
   isOpen: boolean;
@@ -11,43 +11,55 @@ interface CreatePaymentModalProps {
 }
 
 export const CreatePaymentModal: React.FC<CreatePaymentModalProps> = ({ isOpen, onClose }) => {
-  const { leases, currentUser, addPayment } = useApp();
+  const { properties, leases, currentUser, addPayment } = useApp();
 
-  // Find leases belonging to the landlord
-  const activeLeases = leases.filter(
-    (l) => l.landlordId === currentUser.id || l.status === 'ACTIVE' || l.status === 'PENDING_SIGNATURE'
+  // Filter properties belonging strictly to the landlord
+  const landlordProperties = properties.filter(
+    (p) =>
+      p.ownerId === currentUser.id ||
+      p.ownerName === currentUser.name ||
+      (!p.ownerId && currentUser.name === 'Ibrahima Samb')
   );
 
-  const [selectedLeaseId, setSelectedLeaseId] = useState<string>(
-    activeLeases[0]?.id || 'lease_mermoz_2026'
+  const [selectedPropertyId, setSelectedPropertyId] = useState<string>(
+    landlordProperties[0]?.id || 'prop_mermoz_f3'
   );
+  const [tenantName, setTenantName] = useState<string>('Aïssatou Sow');
+  const [tenantPhone, setTenantPhone] = useState<string>('+221 78 312 45 67');
   const [periodMonth, setPeriodMonth] = useState<string>('Septembre 2026');
   const [dueDate, setDueDate] = useState<string>('2026-09-05');
   const [amount, setAmount] = useState<number>(
-    activeLeases[0]?.monthlyRent || 250000
+    landlordProperties[0]?.price || 250000
   );
 
   const [submitted, setSubmitted] = useState<boolean>(false);
 
-  if (!isOpen) return null;
-
-  const handleLeaseChange = (leaseId: string) => {
-    setSelectedLeaseId(leaseId);
-    const leaseObj = leases.find((l) => l.id === leaseId);
-    if (leaseObj) {
-      setAmount(leaseObj.monthlyRent);
+  // Synchronize when property selection changes
+  useEffect(() => {
+    const prop = landlordProperties.find((p) => p.id === selectedPropertyId) || landlordProperties[0];
+    if (prop) {
+      setAmount(prop.price);
+      // Check if there is an active lease for this property
+      const lease = leases.find((l) => l.propertyId === prop.id);
+      if (lease) {
+        setTenantName(lease.tenantName);
+        setTenantPhone(lease.tenantPhone);
+      }
     }
-  };
+  }, [selectedPropertyId]);
+
+  if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const leaseObj = leases.find((l) => l.id === selectedLeaseId) || leases[0];
+    const propObj = landlordProperties.find((p) => p.id === selectedPropertyId) || landlordProperties[0];
+    const leaseObj = leases.find((l) => l.propertyId === selectedPropertyId);
 
     addPayment({
-      leaseId: selectedLeaseId,
-      propertyTitle: leaseObj ? leaseObj.propertyTitle : 'Appartement F3 Mermoz',
-      tenantId: leaseObj ? leaseObj.tenantId : 'usr_tenant_aissatou',
-      tenantName: leaseObj ? leaseObj.tenantName : 'Aïssatou Sow',
+      leaseId: leaseObj ? leaseObj.id : `lease_${Date.now()}`,
+      propertyTitle: propObj ? propObj.title : 'Propriété Immobilère',
+      tenantId: leaseObj ? leaseObj.tenantId : `usr_tenant_${Date.now()}`,
+      tenantName: tenantName.trim() || 'Locataire',
       landlordId: currentUser.id,
       amount: Number(amount),
       periodMonth,
@@ -85,31 +97,73 @@ export const CreatePaymentModal: React.FC<CreatePaymentModalProps> = ({ isOpen, 
             </div>
             <h3 className="text-lg font-bold text-white">Appel de loyer émis avec succès !</h3>
             <p className="text-xs text-slate-400">
-              Un avis d'échéance et une notification SMS de relance ont été envoyés au locataire.
+              Une demande d'encaissement et une alerte SMS de relance ont été transmises à {tenantName} ({tenantPhone}).
             </p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="p-6 space-y-4 text-xs">
-            {/* Lease Selector */}
+            {/* Property Selector */}
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">
-                Contrat de Bail / Propriété *
+              <label className="block text-xs font-semibold text-slate-300 mb-1 flex items-center space-x-1">
+                <Building className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Mes Propriétés Concernées *</span>
               </label>
               <select
-                value={selectedLeaseId}
-                onChange={(e) => handleLeaseChange(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500"
+                value={selectedPropertyId}
+                onChange={(e) => setSelectedPropertyId(e.target.value)}
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500 font-medium"
               >
-                {activeLeases.length > 0 ? (
-                  activeLeases.map((l) => (
-                    <option key={l.id} value={l.id}>
-                      {l.propertyTitle} — Locataire: {l.tenantName} ({formatFCFA(l.monthlyRent)}/mois)
+                {landlordProperties.length > 0 ? (
+                  landlordProperties.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.title} ({p.neighborhood}) — {formatFCFA(p.price)}/mois
                     </option>
                   ))
                 ) : (
-                  <option value="lease_mermoz_2026">Appartement F3 Mermoz — Aïssatou Sow (250 000 FCFA)</option>
+                  <option value="prop_mermoz_f3">Appartement F3 Moderne Lumineux (Mermoz)</option>
                 )}
               </select>
+            </div>
+
+            {/* Tenant Info Section */}
+            <div className="bg-slate-950/60 p-3.5 rounded-2xl border border-slate-800 space-y-3">
+              <span className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider block">
+                Informations du Locataire
+              </span>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {/* Tenant Name */}
+                <div>
+                  <label className="block text-[11px] text-slate-400 mb-1 flex items-center space-x-1">
+                    <User className="w-3 h-3 text-slate-400" />
+                    <span>Nom complet du locataire *</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Ex: Aïssatou Sow, Oumar Sy..."
+                    value={tenantName}
+                    onChange={(e) => setTenantName(e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 font-semibold"
+                  />
+                </div>
+
+                {/* Tenant Phone */}
+                <div>
+                  <label className="block text-[11px] text-slate-400 mb-1 flex items-center space-x-1">
+                    <Phone className="w-3 h-3 text-slate-400" />
+                    <span>Téléphone du locataire (+221) *</span>
+                  </label>
+                  <input
+                    type="tel"
+                    required
+                    placeholder="Ex: +221 78 312 45 67"
+                    value={tenantPhone}
+                    onChange={(e) => setTenantPhone(e.target.value)}
+                    className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 font-mono"
+                  />
+                </div>
+              </div>
             </div>
 
             {/* Period Month */}
@@ -155,14 +209,6 @@ export const CreatePaymentModal: React.FC<CreatePaymentModalProps> = ({ isOpen, 
                   className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-emerald-500"
                 />
               </div>
-            </div>
-
-            {/* Info notice */}
-            <div className="bg-slate-950 border border-slate-800 rounded-xl p-3 text-[11px] text-slate-400 space-y-1">
-              <span className="font-semibold text-slate-300">💡 Notification automatique :</span>
-              <p>
-                Le locataire pourra régler cet appel de loyer directement depuis son application via Wave ou Orange Money, ou vous remettre le paiement en espèces.
-              </p>
             </div>
 
             {/* Submit */}

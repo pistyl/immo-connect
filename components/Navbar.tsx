@@ -60,13 +60,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenCreateProperty }) => {
             🇸🇳
           </div>
           <div>
-            <div className="flex items-center space-x-1.5">
-              <span className="font-extrabold text-base tracking-tight text-white">ImmoConnect</span>
-              <span className="text-[10px] bg-emerald-950 text-emerald-400 font-bold px-1.5 py-0.5 rounded border border-emerald-800">
-                SÉNÉGAL
-              </span>
-            </div>
-            <p className="text-[11px] text-slate-400 font-medium">Gestion Locative Digitale Nationale</p>
+            <span className="font-extrabold text-base sm:text-lg tracking-tight text-white">ImmoConnect</span>
           </div>
         </div>
 

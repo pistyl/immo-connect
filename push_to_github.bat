@@ -31,7 +31,7 @@ echo.
 %GIT_CMD% init
 %GIT_CMD% remote set-url origin https://github.com/pistyl/immo-connect.git || %GIT_CMD% remote add origin https://github.com/pistyl/immo-connect.git
 %GIT_CMD% add .
-%GIT_CMD% commit -m "fix(hydration): Fusion intelligente des biens publiés avec la base de données pour empêcher toute perte d'annonces"
+%GIT_CMD% commit -m "style(navbar): Suppression du badge SÉNÉGAL et du sous-titre de la barre de navigation"
 %GIT_CMD% branch -M main
 %GIT_CMD% push -u origin main
 

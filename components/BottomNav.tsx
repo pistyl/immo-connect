@@ -11,10 +11,22 @@ import {
 } from 'lucide-react';
 
 export const BottomNav: React.FC = () => {
-  const { activeTab, setActiveTab, currentRole, conversations, payments } = useApp();
+  const { activeTab, setActiveTab, currentRole, currentUser, conversations, payments } = useApp();
 
-  const unreadMsgCount = conversations.reduce((acc, c) => acc + c.messages.length, 0);
-  const pendingPayments = payments.filter((p) => p.status === 'PENDING').length;
+  const userConversations = conversations.filter((c) =>
+    currentRole === 'LANDLORD'
+      ? c.landlordId === currentUser.id || c.landlordName === currentUser.name || (!c.landlordId && currentUser.name === 'Ibrahima Samb')
+      : c.tenantId === currentUser.id || c.tenantName === currentUser.name || (c.tenantId === 'usr_tenant_aissatou' && currentUser.name === 'Aïssatou Sow')
+  );
+
+  const userPayments = payments.filter((p) =>
+    currentRole === 'LANDLORD'
+      ? p.landlordId === currentUser.id || (p.landlordId === 'usr_landlord_mamadou' && currentUser.name === 'Ibrahima Samb')
+      : p.tenantId === currentUser.id || (p.tenantId === 'usr_tenant_aissatou' && currentUser.name === 'Aïssatou Sow')
+  );
+
+  const unreadMsgCount = userConversations.reduce((acc, c) => acc + c.messages.length, 0);
+  const pendingPayments = userPayments.filter((p) => p.status === 'PENDING').length;
 
   const tabs = currentRole === 'LANDLORD' ? [
     { id: 'explore', label: 'Annonces', icon: Building2 },

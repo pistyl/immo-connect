@@ -20,6 +20,7 @@ import { DeletePropertyModal } from '../components/DeletePropertyModal';
 import { CreatePaymentModal } from '../components/CreatePaymentModal';
 import { ManualPaymentModal } from '../components/ManualPaymentModal';
 import { SubscriptionModal } from '../components/SubscriptionModal';
+import { AdminBackofficeModal } from '../components/AdminBackofficeModal';
 import {
   Crown,
   Search,
@@ -94,6 +95,7 @@ export default function HomePage() {
   const [activeReceiptModal, setActiveReceiptModal] = useState<Payment | null>(null);
   const [isVerificationOpen, setIsVerificationOpen] = useState(false);
   const [isSubscriptionOpen, setIsSubscriptionOpen] = useState(false);
+  const [isAdminBackofficeOpen, setIsAdminBackofficeOpen] = useState(false);
 
   // Chat State
   const [activeChatPropertyId, setActiveChatPropertyId] = useState<string | null>(
@@ -1293,6 +1295,11 @@ export default function HomePage() {
         isOpen={isSubscriptionOpen}
         onClose={() => setIsSubscriptionOpen(false)}
         currentPropertyCount={userProperties.length}
+      />
+
+      <AdminBackofficeModal
+        isOpen={isAdminBackofficeOpen}
+        onClose={() => setIsAdminBackofficeOpen(false)}
       />
 
       <AuthModal isOpen={isAuthModalOpen} onClose={closeAuthModal} />

@@ -1,4 +1,4 @@
-export type UserRole = 'LANDLORD' | 'TENANT';
+export type UserRole = 'LANDLORD' | 'TENANT' | 'ADMIN';
 
 export type VerificationStatus = 'UNVERIFIED' | 'PENDING' | 'VERIFIED';
 

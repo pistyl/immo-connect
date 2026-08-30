@@ -31,7 +31,7 @@ echo.
 %GIT_CMD% init
 %GIT_CMD% remote set-url origin https://github.com/pistyl/immo-connect.git || %GIT_CMD% remote add origin https://github.com/pistyl/immo-connect.git
 %GIT_CMD% add .
-%GIT_CMD% commit -m "style(navbar): Suppression du bouton Connexion Rôles de la barre de profil"
+%GIT_CMD% commit -m "feat(admin): Création de la page dédiée Backoffice accessible directement via l'URL /admin"
 %GIT_CMD% branch -M main
 %GIT_CMD% push -u origin main
 

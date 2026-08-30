@@ -22,6 +22,7 @@ import {
   INITIAL_INVENTORY_REPORTS,
   INITIAL_PAYMENTS,
   INITIAL_CONVERSATIONS,
+  INITIAL_USERS,
 } from '../lib/seedData';
 import { getSupabase, isSupabaseConfigured } from '../lib/supabase';
 
@@ -36,6 +37,8 @@ interface AppContextType {
   currentUser: User;
   landlordUser: User;
   tenantUser: User;
+  allUsers: User[];
+  grantProSubscription: (userId: string, plan: SubscriptionPlan) => void;
   updateUserVerification: (idCardUrl: string, proofUrl: string) => void;
   upgradeSubscription: (plan: SubscriptionPlan) => void;
   properties: Property[];
@@ -81,6 +84,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [inventoryReports, setInventoryReports] = useState<InventoryReport[]>(INITIAL_INVENTORY_REPORTS);
   const [payments, setPayments] = useState<Payment[]>(INITIAL_PAYMENTS);
   const [conversations, setConversations] = useState<Conversation[]>(INITIAL_CONVERSATIONS);
+  const [allUsers, setAllUsers] = useState<User[]>(INITIAL_USERS);
   
   const [isOffline, setIsOffline] = useState<boolean>(false);
   const [offlineDrafts, setOfflineDrafts] = useState<OfflineDraft[]>([]);
@@ -301,6 +305,16 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     } else {
       setTenantUser(updatedUser);
     }
+
+    setAllUsers((prev) => {
+      const idx = prev.findIndex((u) => u.id === updatedUser.id || (u.phone && updatedUser.phone && u.phone.replace(/\s+/g, '') === updatedUser.phone.replace(/\s+/g, '')));
+      if (idx >= 0) {
+        const updatedList = [...prev];
+        updatedList[idx] = updatedUser;
+        return updatedList;
+      }
+      return [updatedUser, ...prev];
+    });
 
     // Persist profile to Supabase
     const client = getSupabase();
@@ -953,6 +967,37 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setOfflineDrafts([]);
   };
 
+  const grantProSubscription = (userId: string, plan: SubscriptionPlan) => {
+    setAllUsers((prev) =>
+      prev.map((u) =>
+        u.id === userId
+          ? {
+              ...u,
+              subscriptionStatus: 'PRO',
+              subscriptionPlan: plan,
+              subscriptionExpiresAt: new Date(
+                Date.now() + (plan === 'MONTHLY' ? 30 : plan === 'QUARTERLY' ? 90 : 365) * 86400000
+              ).toISOString(),
+            }
+          : u
+      )
+    );
+    if (landlordUser.id === userId) {
+      setLandlordUser((prev) => ({
+        ...prev,
+        subscriptionStatus: 'PRO',
+        subscriptionPlan: plan,
+      }));
+    }
+    const client = getSupabase();
+    if (client) {
+      client.from('profiles').update({
+        subscription_status: 'PRO',
+        subscription_plan: plan,
+      }).eq('id', userId);
+    }
+  };
+
   const clearSmsNotifications = () => setSmsNotifications([]);
 
   return (
@@ -968,6 +1013,8 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         currentUser,
         landlordUser,
         tenantUser,
+        allUsers,
+        grantProSubscription,
         updateUserVerification,
         upgradeSubscription,
         properties,

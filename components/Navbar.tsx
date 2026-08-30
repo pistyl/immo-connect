@@ -66,6 +66,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenCreateProperty }) => {
 
         {/* Action Controls & Role Switcher */}
         <div className="flex items-center space-x-2">
+
           {/* SMS Notification Bell */}
           <button
             onClick={() => setShowSmsDrawer(!showSmsDrawer)}

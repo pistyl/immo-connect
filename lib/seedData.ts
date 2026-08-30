@@ -22,6 +22,39 @@ export const INITIAL_USER_TENANT: User = {
   createdAt: '2026-03-01T14:30:00Z',
 };
 
+export const INITIAL_USERS: User[] = [
+  INITIAL_USER_LANDLORD,
+  INITIAL_USER_TENANT,
+  {
+    id: 'usr_landlord_fatou',
+    name: 'Madame Fatou Kane',
+    phone: '+221 76 544 33 22',
+    role: 'LANDLORD',
+    verificationStatus: 'VERIFIED',
+    subscriptionStatus: 'PRO',
+    subscriptionPlan: 'ANNUAL',
+    createdAt: '2026-02-01T10:00:00Z',
+  },
+  {
+    id: 'usr_landlord_demba',
+    name: 'Demba Ba',
+    phone: '+221 70 889 22 11',
+    role: 'LANDLORD',
+    verificationStatus: 'VERIFIED',
+    subscriptionStatus: 'PRO',
+    subscriptionPlan: 'MONTHLY',
+    createdAt: '2026-03-10T11:00:00Z',
+  },
+  {
+    id: 'usr_admin_super',
+    name: 'Administrateur ImmoConnect',
+    phone: '+221 77 000 00 00',
+    role: 'ADMIN',
+    verificationStatus: 'VERIFIED',
+    createdAt: '2026-01-01T00:00:00Z',
+  },
+];
+
 export const INITIAL_PROPERTIES: Property[] = [
   {
     id: 'prop_mermoz_f3',

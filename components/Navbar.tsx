@@ -127,19 +127,21 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenCreateProperty }) => {
           )}
         </div>
         <div className="flex items-center space-x-2 text-[10px]">
-          <button
-            onClick={openAuthModal}
-            className="text-emerald-400 font-bold hover:underline"
-          >
-            Connexion Rôles
-          </button>
-          <span className="text-slate-600">•</span>
-          <button
-            onClick={logout}
-            className="text-rose-400 hover:underline"
-          >
-            Déconnexion
-          </button>
+          {isAuthenticated ? (
+            <button
+              onClick={logout}
+              className="text-rose-400 hover:underline font-semibold"
+            >
+              Déconnexion
+            </button>
+          ) : (
+            <button
+              onClick={openAuthModal}
+              className="text-emerald-400 hover:underline font-bold"
+            >
+              Se connecter
+            </button>
+          )}
         </div>
       </div>
 

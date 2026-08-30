@@ -24,8 +24,8 @@ export const CreatePaymentModal: React.FC<CreatePaymentModalProps> = ({ isOpen, 
   const [selectedPropertyId, setSelectedPropertyId] = useState<string>(
     landlordProperties[0]?.id || 'prop_mermoz_f3'
   );
-  const [tenantName, setTenantName] = useState<string>('Aïssatou Sow');
-  const [tenantPhone, setTenantPhone] = useState<string>('+221 78 312 45 67');
+  const [tenantName, setTenantName] = useState<string>('');
+  const [tenantPhone, setTenantPhone] = useState<string>('');
   const [periodMonth, setPeriodMonth] = useState<string>('Septembre 2026');
   const [dueDate, setDueDate] = useState<string>('2026-09-05');
   const [amount, setAmount] = useState<number>(
@@ -34,17 +34,11 @@ export const CreatePaymentModal: React.FC<CreatePaymentModalProps> = ({ isOpen, 
 
   const [submitted, setSubmitted] = useState<boolean>(false);
 
-  // Synchronize when property selection changes
+  // Synchronize rent amount when property selection changes
   useEffect(() => {
     const prop = landlordProperties.find((p) => p.id === selectedPropertyId) || landlordProperties[0];
     if (prop) {
       setAmount(prop.price);
-      // Check if there is an active lease for this property
-      const lease = leases.find((l) => l.propertyId === prop.id);
-      if (lease) {
-        setTenantName(lease.tenantName);
-        setTenantPhone(lease.tenantPhone);
-      }
     }
   }, [selectedPropertyId]);
 
@@ -141,7 +135,7 @@ export const CreatePaymentModal: React.FC<CreatePaymentModalProps> = ({ isOpen, 
                   <input
                     type="text"
                     required
-                    placeholder="Ex: Aïssatou Sow, Oumar Sy..."
+                    placeholder="Prénom et Nom du locataire"
                     value={tenantName}
                     onChange={(e) => setTenantName(e.target.value)}
                     className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 font-semibold"
@@ -157,7 +151,7 @@ export const CreatePaymentModal: React.FC<CreatePaymentModalProps> = ({ isOpen, 
                   <input
                     type="tel"
                     required
-                    placeholder="Ex: +221 78 312 45 67"
+                    placeholder="+221 77 000 00 00"
                     value={tenantPhone}
                     onChange={(e) => setTenantPhone(e.target.value)}
                     className="w-full bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500 font-mono"

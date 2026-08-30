@@ -31,7 +31,7 @@ echo.
 %GIT_CMD% init
 %GIT_CMD% remote set-url origin https://github.com/pistyl/immo-connect.git || %GIT_CMD% remote add origin https://github.com/pistyl/immo-connect.git
 %GIT_CMD% add .
-%GIT_CMD% commit -m "feat: Sélection des propres biens du propriétaire et saisie personnalisée des coordonnées du locataire"
+%GIT_CMD% commit -m "fix: Champs locataire vierges par défaut sans aucune pré-saisie simulée"
 %GIT_CMD% branch -M main
 %GIT_CMD% push -u origin main
 

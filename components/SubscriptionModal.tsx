@@ -27,11 +27,11 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
   onClose,
   currentPropertyCount = 5,
 }) => {
-  const { landlordUser, upgradeSubscription } = useApp();
+  const { currentUser, upgradeSubscription } = useApp();
 
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan>('ANNUAL');
   const [paymentMethod, setPaymentMethod] = useState<'WAVE' | 'ORANGE_MONEY'>('WAVE');
-  const [phoneNumber, setPhoneNumber] = useState<string>(landlordUser.phone || '+221 77 000 00 00');
+  const [phoneNumber, setPhoneNumber] = useState<string>(currentUser.phone || '+221 77 000 00 00');
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
 
@@ -117,7 +117,7 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
         </div>
 
         {/* Reached Limit Banner Notice */}
-        {currentPropertyCount >= 5 && landlordUser.subscriptionStatus !== 'PRO' && (
+        {currentPropertyCount >= 5 && currentUser.subscriptionStatus !== 'PRO' && (
           <div className="bg-amber-950/90 border-b border-amber-800/80 px-4 py-2.5 text-xs text-amber-200 flex items-center space-x-2">
             <Zap className="w-4 h-4 text-amber-400 shrink-0" />
             <span>

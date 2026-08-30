@@ -35,6 +35,8 @@ interface AppContextType {
   currentRole: UserRole;
   toggleRole: () => void;
   currentUser: User;
+  landlordUser: User;
+  tenantUser: User;
   updateUserVerification: (idCardUrl: string, proofUrl: string) => void;
   upgradeSubscription: (plan: SubscriptionPlan) => void;
   properties: Property[];

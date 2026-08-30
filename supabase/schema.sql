@@ -109,7 +109,7 @@ CREATE TABLE IF NOT EXISTS public.payments (
   period_month VARCHAR(50) NOT NULL, -- e.g. "Août 2026"
   due_date DATE NOT NULL,
   paid_date TIMESTAMPTZ,
-  method VARCHAR(20) CHECK (method IN ('WAVE', 'ORANGE_MONEY')),
+  method VARCHAR(30) CHECK (method IN ('WAVE', 'ORANGE_MONEY', 'CASH', 'BANK_TRANSFER', 'CHEQUE')),
   status VARCHAR(20) NOT NULL DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'PAID', 'OVERDUE')),
   transaction_id VARCHAR(100),
   receipt_url TEXT,

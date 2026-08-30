@@ -121,7 +121,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             createdAt: p.created_at,
           }));
 
-          setProperties(mappedProps);
+          setProperties((prev) => {
+            const merged = [...mappedProps];
+            prev.forEach((item) => {
+              if (!merged.some((p) => p.id === item.id)) {
+                merged.push(item);
+              }
+            });
+            return merged;
+          });
           setSupabaseConnected(true);
         }
 
@@ -150,7 +158,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             pdfUrl: l.pdf_url,
             createdAt: l.created_at,
           }));
-          setLeases(mappedLeases);
+          setLeases((prev) => {
+            const merged = [...mappedLeases];
+            prev.forEach((item) => {
+              if (!merged.some((l) => l.id === item.id)) {
+                merged.push(item);
+              }
+            });
+            return merged;
+          });
         }
 
         // 3. Fetch payments
@@ -172,7 +188,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             transactionId: p.transaction_id,
             receiptUrl: p.receipt_url,
           }));
-          setPayments(mappedPayments);
+          setPayments((prev) => {
+            const merged = [...mappedPayments];
+            prev.forEach((item) => {
+              if (!merged.some((p) => p.id === item.id)) {
+                merged.push(item);
+              }
+            });
+            return merged;
+          });
         }
 
         // 4. Fetch inventory reports
@@ -196,7 +220,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             exitSignatureDate: i.exit_signature_date,
             pdfUrl: i.pdf_url,
           }));
-          setInventoryReports(mappedInv);
+          setInventoryReports((prev) => {
+            const merged = [...mappedInv];
+            prev.forEach((item) => {
+              if (!merged.some((inv) => inv.id === item.id)) {
+                merged.push(item);
+              }
+            });
+            return merged;
+          });
         }
 
         // 5. Fetch conversations
@@ -214,7 +246,15 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             messages: c.messages || [],
             lastUpdated: c.last_updated,
           }));
-          setConversations(mappedConvs);
+          setConversations((prev) => {
+            const merged = [...mappedConvs];
+            prev.forEach((item) => {
+              if (!merged.some((c) => c.id === item.id)) {
+                merged.push(item);
+              }
+            });
+            return merged;
+          });
         }
       } catch (err) {
         console.warn('Supabase fetch notice:', err);

@@ -123,7 +123,11 @@ export default function HomePage() {
   const userProperties = properties.filter((p) =>
     currentRole === 'LANDLORD'
       ? (p.ownerId && p.ownerId === currentUser.id) ||
-        (p.ownerPhone && normUserPhone && p.ownerPhone.replace(/\s+/g, '') === normUserPhone)
+        (p.ownerPhone && normUserPhone && p.ownerPhone.replace(/\s+/g, '') === normUserPhone) ||
+        (p.ownerName && currentUser.name && (
+          p.ownerName.toLowerCase().includes(currentUser.name.toLowerCase()) ||
+          currentUser.name.toLowerCase().includes(p.ownerName.toLowerCase())
+        ))
       : true
   );
 

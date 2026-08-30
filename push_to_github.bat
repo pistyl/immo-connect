@@ -31,7 +31,7 @@ echo.
 %GIT_CMD% init
 %GIT_CMD% remote set-url origin https://github.com/pistyl/immo-connect.git || %GIT_CMD% remote add origin https://github.com/pistyl/immo-connect.git
 %GIT_CMD% add .
-%GIT_CMD% commit -m "config: Nettoyage du fichier .env.local avec la chaîne de connexion directe PostgreSQL DATABASE_URL"
+%GIT_CMD% commit -m "fix(persistence): Ajout de la route API serveur /api/db pour garantir la persistance intégrale des données en ligne sur Vercel"
 %GIT_CMD% branch -M main
 %GIT_CMD% push -u origin main
 

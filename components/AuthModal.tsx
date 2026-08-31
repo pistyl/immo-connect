@@ -90,9 +90,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
 
   const handleQuickRoleSelect = (selectedRole: UserRole) => {
     if (selectedRole === 'LANDLORD') {
-      loginWithPhone('+221 77 645 89 12', 'LANDLORD', 'Mamadou Ndiaye');
+      loginWithPhone('+221 77 000 00 00', 'LANDLORD', 'Propriétaire Démo');
     } else {
-      loginWithPhone('+221 78 312 45 67', 'TENANT', 'Aïssatou Sow');
+      loginWithPhone('+221 78 000 00 00', 'TENANT', 'Locataire Démo');
     }
     onClose();
   };
@@ -107,7 +107,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     if (mode === 'REGISTER') {
       loginWithPhone(formattedPhone, role, fullName.trim());
     } else {
-      const defaultName = role === 'LANDLORD' ? 'Propriétaire Connecté' : 'Locataire Connecté';
+      const defaultName = role === 'LANDLORD' ? 'Propriétaire' : 'Locataire';
       loginWithPhone(formattedPhone, role, fullName.trim() || defaultName);
     }
 

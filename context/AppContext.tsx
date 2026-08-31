@@ -294,9 +294,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const updatedUser: User = {
       id: `usr_${Date.now()}`,
       phone,
-      name: name?.trim() || (role === 'LANDLORD' ? 'Mamadou Ndiaye' : 'Aïssatou Sow'),
+      name: name?.trim() || (role === 'LANDLORD' ? 'Propriétaire' : 'Locataire'),
       role,
-      verificationStatus: 'VERIFIED',
+      verificationStatus: 'PENDING',
       createdAt: new Date().toISOString(),
     };
 

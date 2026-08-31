@@ -17,12 +17,11 @@ export const CreatePaymentModal: React.FC<CreatePaymentModalProps> = ({ isOpen, 
   const landlordProperties = properties.filter(
     (p) =>
       p.ownerId === currentUser.id ||
-      p.ownerName === currentUser.name ||
-      (!p.ownerId && currentUser.name === 'Ibrahima Samb')
+      p.ownerName === currentUser.name
   );
 
   const [selectedPropertyId, setSelectedPropertyId] = useState<string>(
-    landlordProperties[0]?.id || 'prop_mermoz_f3'
+    landlordProperties[0]?.id || ''
   );
   const [tenantName, setTenantName] = useState<string>('');
   const [tenantPhone, setTenantPhone] = useState<string>('');

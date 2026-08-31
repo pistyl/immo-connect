@@ -1,24 +1,20 @@
 import { User, Property, Lease, InventoryReport, Payment, Conversation } from '../types';
 
 export const INITIAL_USER_LANDLORD: User = {
-  id: 'usr_landlord_mamadou',
-  name: 'Ibrahima Samb',
+  id: 'usr_landlord_default',
+  name: 'Propriétaire',
   phone: '',
   role: 'LANDLORD',
-  verificationStatus: 'VERIFIED',
-  idCardUrl: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=400&q=80',
-  proofOfOwnershipUrl: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?w=400&q=80',
-  email: 'ibrahima.samb@immo-senegal.sn',
+  verificationStatus: 'PENDING',
   createdAt: '2026-01-15T10:00:00Z',
 };
 
 export const INITIAL_USER_TENANT: User = {
-  id: 'usr_tenant_aissatou',
-  name: 'Aïssatou Sow',
+  id: 'usr_tenant_default',
+  name: 'Locataire',
   phone: '',
   role: 'TENANT',
-  verificationStatus: 'VERIFIED',
-  email: 'aissatou.sow@orange.sn',
+  verificationStatus: 'PENDING',
   createdAt: '2026-03-01T14:30:00Z',
 };
 
@@ -58,9 +54,9 @@ export const INITIAL_USERS: User[] = [
 export const INITIAL_PROPERTIES: Property[] = [
   {
     id: 'prop_mermoz_f3',
-    ownerId: 'usr_landlord_mamadou',
-    ownerName: 'Ibrahima Samb',
-    ownerPhone: '+221 77 645 89 12',
+    ownerId: 'usr_landlord_agence',
+    ownerName: 'Agence ImmoConnect',
+    ownerPhone: '+221 77 000 00 00',
     ownerVerified: true,
     title: 'Appartement F3 Moderne Lumineux',
     description: 'Magnifique appartement F3 avec finition haut de gamme, grand séjour ventilé, cuisine aménagée avec placards, master bedroom avec salle de bain contiguë et balcon avec vue sur Mermoz. Immeuble sécurisé 24h/24 avec réservoir d’eau et surpresseur.',
@@ -71,7 +67,7 @@ export const INITIAL_PROPERTIES: Property[] = [
     rooms: 3,
     price: 250000,
     chargesIncluded: true,
-    isAvailable: false, // Loué à Aïssatou Sow
+    isAvailable: true,
     photos: [
       'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800&q=80',
       'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800&q=80',
@@ -83,9 +79,9 @@ export const INITIAL_PROPERTIES: Property[] = [
   },
   {
     id: 'prop_saly_villa',
-    ownerId: 'usr_landlord_mamadou',
-    ownerName: 'Ibrahima Samb',
-    ownerPhone: '+221 77 645 89 12',
+    ownerId: 'usr_landlord_agence',
+    ownerName: 'Agence ImmoConnect',
+    ownerPhone: '+221 77 000 00 00',
     ownerVerified: true,
     title: 'Villa de Standing avec Piscine à Saly',
     description: 'Superbe villa contemporaine à Saly Portudal avec piscine privée, jardin tropical arboré, 3 chambres climatisées avec salles de bains en suite, terrasse couverte et garage fermé. Sécurité 24h/24. Proche plage et golf.',
@@ -153,9 +149,9 @@ export const INITIAL_PROPERTIES: Property[] = [
   },
   {
     id: 'prop_almadies_studio',
-    ownerId: 'usr_landlord_mamadou',
-    ownerName: 'Ibrahima Samb',
-    ownerPhone: '+221 77 645 89 12',
+    ownerId: 'usr_landlord_agence',
+    ownerName: 'Agence ImmoConnect',
+    ownerPhone: '+221 77 000 00 00',
     ownerVerified: true,
     title: 'Studio Executive Meublé Almadies',
     description: 'Studio standing entièrement équipé aux Almadies. Lit Queen-size, climatisation inverter, Smart TV, Wi-Fi haut débit, kitchenette équipée, gardiennage et groupe électrogène. Idéal pour cadre expatrié ou séjour professionnel.',
@@ -222,175 +218,10 @@ export const INITIAL_PROPERTIES: Property[] = [
   },
 ];
 
-export const INITIAL_LEASES: Lease[] = [
-  {
-    id: 'lease_mermoz_2026',
-    propertyId: 'prop_mermoz_f3',
-    propertyTitle: 'Appartement F3 Moderne Lumineux (Mermoz)',
-    propertyRegion: 'Dakar',
-    propertyNeighborhood: 'Mermoz',
-    landlordId: 'usr_landlord_mamadou',
-    landlordName: 'Ibrahima Samb',
-    landlordPhone: '+221 77 645 89 12',
-    tenantId: 'usr_tenant_aissatou',
-    tenantName: 'Aïssatou Sow',
-    tenantPhone: '+221 78 312 45 67',
-    monthlyRent: 250000,
-    securityDeposit: 500000, // 2 mois
-    startDate: '2026-03-01',
-    durationMonths: 12,
-    status: 'ACTIVE',
-    landlordSignature: {
-      signed: true,
-      timestamp: '2026-02-28 14:15:22',
-      ip: '41.82.105.14 (Orange Senegal)',
-      signerName: 'Ibrahima Samb',
-    },
-    tenantSignature: {
-      signed: true,
-      timestamp: '2026-02-28 16:40:05',
-      ip: '197.214.22.88 (Free Senegal)',
-      signerName: 'Aïssatou Sow',
-    },
-    createdAt: '2026-02-27T10:00:00Z',
-  },
-];
+export const INITIAL_LEASES: Lease[] = [];
 
-export const INITIAL_INVENTORY_REPORTS: InventoryReport[] = [
-  {
-    id: 'inv_mermoz_entry_2026',
-    leaseId: 'lease_mermoz_2026',
-    propertyTitle: 'Appartement F3 Moderne Lumineux',
-    propertyRegion: 'Dakar',
-    propertyNeighborhood: 'Mermoz',
-    tenantName: 'Aïssatou Sow',
-    landlordName: 'Ibrahima Samb',
-    dateEntry: '2026-03-01',
-    type: 'ENTREE',
-    isEntrySigned: true,
-    entrySignatureDate: '2026-03-01 10:30',
-    items: [
-      {
-        id: 'item_1',
-        room: 'Salon',
-        elementName: 'Murs & Peinture',
-        conditionEntry: 'NEUF',
-        notesEntry: 'Peinture blanche satinée fraiche sans fissure',
-        photoEntryUrl: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=400&q=80',
-      },
-      {
-        id: 'item_2',
-        room: 'Salon',
-        elementName: 'Carrelage & Plinthes',
-        conditionEntry: 'BON_ETAT',
-        notesEntry: 'Carrelage beige propre, léger impact près de la baie vitrée',
-        photoEntryUrl: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&q=80',
-      },
-      {
-        id: 'item_3',
-        room: 'Cuisine',
-        elementName: 'Evier & Plomberie',
-        conditionEntry: 'NEUF',
-        notesEntry: 'Robinet mitigeur neuf, pression d\'eau excellente',
-        photoEntryUrl: 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?w=400&q=80',
-      },
-      {
-        id: 'item_4',
-        room: 'Chambre Principale',
-        elementName: 'Climatisation Inverter',
-        conditionEntry: 'BON_ETAT',
-        notesEntry: 'Télécommande fournie, gaz rechargé, refroidissement rapide',
-        photoEntryUrl: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=400&q=80',
-      },
-      {
-        id: 'item_5',
-        room: 'Salle de Bain',
-        elementName: 'Chauffe-eau & Douche',
-        conditionEntry: 'BON_ETAT',
-        notesEntry: 'Chauffe-eau 50L en fonctionnement',
-      },
-    ],
-  },
-];
+export const INITIAL_INVENTORY_REPORTS: InventoryReport[] = [];
 
-export const INITIAL_PAYMENTS: Payment[] = [
-  {
-    id: 'pay_2026_06',
-    leaseId: 'lease_mermoz_2026',
-    propertyTitle: 'Appartement F3 Mermoz',
-    tenantId: 'usr_tenant_aissatou',
-    tenantName: 'Aïssatou Sow',
-    landlordId: 'usr_landlord_mamadou',
-    amount: 250000,
-    periodMonth: 'Juin 2026',
-    dueDate: '2026-06-05',
-    paidDate: '2026-06-03 11:20:00',
-    method: 'WAVE',
-    status: 'PAID',
-    transactionId: 'WAVE-SN-2026-991204',
-  },
-  {
-    id: 'pay_2026_07',
-    leaseId: 'lease_mermoz_2026',
-    propertyTitle: 'Appartement F3 Mermoz',
-    tenantId: 'usr_tenant_aissatou',
-    tenantName: 'Aïssatou Sow',
-    landlordId: 'usr_landlord_mamadou',
-    amount: 250000,
-    periodMonth: 'Juillet 2026',
-    dueDate: '2026-07-05',
-    paidDate: '2026-07-04 09:15:30',
-    method: 'ORANGE_MONEY',
-    status: 'PAID',
-    transactionId: 'OM-SN-7781290334',
-  },
-  {
-    id: 'pay_2026_08',
-    leaseId: 'lease_mermoz_2026',
-    propertyTitle: 'Appartement F3 Mermoz',
-    tenantId: 'usr_tenant_aissatou',
-    tenantName: 'Aïssatou Sow',
-    landlordId: 'usr_landlord_mamadou',
-    amount: 250000,
-    periodMonth: 'Août 2026',
-    dueDate: '2026-08-05',
-    status: 'PENDING',
-  },
-];
+export const INITIAL_PAYMENTS: Payment[] = [];
 
-export const INITIAL_CONVERSATIONS: Conversation[] = [
-  {
-    id: 'conv_mermoz_aissatou',
-    propertyId: 'prop_mermoz_f3',
-    propertyTitle: 'Appartement F3 Mermoz',
-    propertyPhoto: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=400&q=80',
-    landlordId: 'usr_landlord_mamadou',
-    landlordName: 'Mamadou Ndiaye',
-    tenantId: 'usr_tenant_aissatou',
-    tenantName: 'Aïssatou Sow',
-    lastUpdated: '2026-08-25T16:00:00Z',
-    messages: [
-      {
-        id: 'msg_1',
-        senderId: 'usr_tenant_aissatou',
-        senderName: 'Aïssatou Sow',
-        text: 'Bonjour Monsieur Ndiaye, je souhaite confirmer la réception du reçu pour le mois de Juillet. Merci !',
-        timestamp: '2026-07-04 10:00',
-      },
-      {
-        id: 'msg_2',
-        senderId: 'usr_landlord_mamadou',
-        senderName: 'Mamadou Ndiaye',
-        text: 'Bonjour Aïssatou, bien reçu ! Merci pour la ponctualité. Pour le mois d’août, vous pouvez régler via Wave ou Orange Money directement sur l’application.',
-        timestamp: '2026-07-04 10:15',
-      },
-      {
-        id: 'msg_3',
-        senderId: 'usr_tenant_aissatou',
-        senderName: 'Aïssatou Sow',
-        text: 'Parfait, c\'est noté. Je procède au paiement cet après-midi.',
-        timestamp: '2026-08-25 16:00',
-      },
-    ],
-  },
-];
+export const INITIAL_CONVERSATIONS: Conversation[] = [];

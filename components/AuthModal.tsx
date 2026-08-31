@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { UserRole } from '../types';
 import {
@@ -27,13 +27,20 @@ interface AuthModalProps {
 export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   const { loginWithPhone, isAuthenticated } = useApp();
 
-  const [mode, setMode] = useState<'REGISTER' | 'LOGIN'>('REGISTER');
+  const [mode, setMode] = useState<'REGISTER' | 'LOGIN'>('LOGIN');
   const [role, setRole] = useState<UserRole>('LANDLORD');
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('+221 ');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      setMode('LOGIN');
+      setErrorMsg(null);
+    }
+  }, [isOpen]);
 
   if (!isOpen && isAuthenticated) return null;
 

@@ -274,10 +274,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
               className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs rounded-xl shadow-lg transition-all flex items-center justify-center space-x-2"
             >
               {mode === 'REGISTER' ? (
-                <>
-                  <Sparkles className="w-4 h-4" />
-                  <span>Créer un compte</span>
-                </>
+                <span>Créer un compte</span>
               ) : (
                 <>
                   <LogIn className="w-4 h-4" />

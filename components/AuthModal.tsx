@@ -230,9 +230,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                   className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-xs text-white font-mono placeholder-slate-500 focus:outline-none focus:border-emerald-500"
                 />
               </div>
-              <p className="text-[10px] text-slate-500 mt-1">
-                Opérateurs acceptés : Orange (77, 78), Free (76), Expresso (70), Promobile (75).
-              </p>
             </div>
 
             {/* Password */}

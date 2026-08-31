@@ -31,7 +31,7 @@ echo.
 %GIT_CMD% init
 %GIT_CMD% remote set-url origin https://github.com/pistyl/immo-connect.git || %GIT_CMD% remote add origin https://github.com/pistyl/immo-connect.git
 %GIT_CMD% add .
-%GIT_CMD% commit -m "fix(auth): definir la connexion par defaut au lieu de l'inscription sur la page d'accueil"
+%GIT_CMD% commit -m "fix(auth): mode connexion par defaut et suppression de la notice operateurs"
 %GIT_CMD% branch -M main
 %GIT_CMD% push -u origin main
 

@@ -25,7 +25,7 @@ interface AuthModalProps {
 }
 
 export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
-  const { loginWithPhone, isAuthenticated } = useApp();
+  const { loginWithPhone, isAuthenticated, allUsers } = useApp();
 
   const [mode, setMode] = useState<'REGISTER' | 'LOGIN'>('LOGIN');
   const [role, setRole] = useState<UserRole>('LANDLORD');
@@ -43,6 +43,18 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   }, [isOpen]);
 
   if (!isOpen && isAuthenticated) return null;
+
+  const findUserByPhone = (phoneStr: string) => {
+    const clean = phoneStr.replace(/\D/g, '');
+    if (!clean) return null;
+    const local = clean.startsWith('221') ? clean.slice(3) : clean;
+    return allUsers.find((u) => {
+      if (!u.phone) return false;
+      const uClean = u.phone.replace(/\D/g, '');
+      const uLocal = uClean.startsWith('221') ? uClean.slice(3) : uClean;
+      return local === uLocal && local.length === 9;
+    });
+  };
 
   const validateInputs = (): boolean => {
     setErrorMsg(null);
@@ -88,27 +100,26 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     return true;
   };
 
-  const handleQuickRoleSelect = (selectedRole: UserRole) => {
-    if (selectedRole === 'LANDLORD') {
-      loginWithPhone('+221 77 000 00 00', 'LANDLORD', 'Propriétaire Démo');
-    } else {
-      loginWithPhone('+221 78 000 00 00', 'TENANT', 'Locataire Démo');
-    }
-    onClose();
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!validateInputs()) return;
 
     const formattedPhone = phone.startsWith('+221') ? phone : `+221 ${phone.replace(/^221/, '').trim()}`;
+    const existingUser = findUserByPhone(formattedPhone);
 
     if (mode === 'REGISTER') {
+      if (existingUser) {
+        setErrorMsg(`Un compte existe déjà avec le numéro ${formattedPhone}. Veuillez basculer sur "Se connecter".`);
+        return;
+      }
       loginWithPhone(formattedPhone, role, fullName.trim());
     } else {
-      const defaultName = role === 'LANDLORD' ? 'Propriétaire' : 'Locataire';
-      loginWithPhone(formattedPhone, role, fullName.trim() || defaultName);
+      if (!existingUser) {
+        setErrorMsg(`Aucun compte n'a été trouvé avec le numéro ${formattedPhone}. Veuillez d'abord cliquer sur "S'inscrire" pour créer un compte.`);
+        return;
+      }
+      loginWithPhone(formattedPhone, existingUser.role || role, existingUser.name);
     }
 
     onClose();
@@ -306,30 +317,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                   </button>
                 </p>
               )}
-            </div>
-
-            {/* Quick Account Selector */}
-            <div className="pt-3 border-t border-slate-800 space-y-2">
-              <span className="text-[10px] text-slate-500 font-semibold uppercase block text-center">
-                Accès direct Démo par rôle
-              </span>
-
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => handleQuickRoleSelect('LANDLORD')}
-                  className="py-2.5 bg-amber-950/40 hover:bg-amber-900/60 border border-amber-800/60 text-amber-200 text-[11px] font-bold rounded-xl truncate px-2 transition-colors flex items-center justify-center space-x-1"
-                >
-                  <span>🏠 Espace Propriétaire</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleQuickRoleSelect('TENANT')}
-                  className="py-2.5 bg-teal-950/40 hover:bg-teal-900/60 border border-teal-800/60 text-teal-200 text-[11px] font-bold rounded-xl truncate px-2 transition-colors flex items-center justify-center space-x-1"
-                >
-                  <span>🔑 Espace Locataire</span>
-                </button>
-              </div>
             </div>
           </form>
         </div>

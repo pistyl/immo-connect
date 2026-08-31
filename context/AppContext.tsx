@@ -260,6 +260,32 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
             return merged;
           });
         }
+
+        // 6. Fetch profiles (users) from Database
+        const { data: dbProfiles, error: profErr } = await client.from('profiles').select('*');
+        if (!profErr && dbProfiles && dbProfiles.length > 0) {
+          const mappedUsers: User[] = dbProfiles.map((p: any) => ({
+            id: p.id,
+            phone: p.phone,
+            name: p.name,
+            role: p.role,
+            verificationStatus: p.verification_status || 'PENDING',
+            createdAt: p.created_at || new Date().toISOString(),
+            idCardUrl: p.id_card_url,
+            proofOfOwnershipUrl: p.proof_of_ownership_url,
+            subscriptionStatus: p.subscription_status,
+            subscriptionPlan: p.subscription_plan,
+          }));
+          setAllUsers((prev) => {
+            const merged = [...mappedUsers];
+            prev.forEach((item) => {
+              if (!merged.some((u) => u.id === item.id || (u.phone && item.phone && u.phone.replace(/\D/g, '') === item.phone.replace(/\D/g, '')))) {
+                merged.push(item);
+              }
+            });
+            return merged;
+          });
+        }
       } catch (err) {
         console.warn('Supabase fetch notice:', err);
       }
@@ -307,7 +333,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
 
     setAllUsers((prev) => {
-      const idx = prev.findIndex((u) => u.id === updatedUser.id || (u.phone && updatedUser.phone && u.phone.replace(/\s+/g, '') === updatedUser.phone.replace(/\s+/g, '')));
+      const idx = prev.findIndex((u) => u.id === updatedUser.id || (u.phone && updatedUser.phone && u.phone.replace(/\D/g, '') === updatedUser.phone.replace(/\D/g, '')));
       if (idx >= 0) {
         const updatedList = [...prev];
         updatedList[idx] = updatedUser;

@@ -276,7 +276,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
               {mode === 'REGISTER' ? (
                 <>
                   <Sparkles className="w-4 h-4" />
-                  <span>S'inscrire & Créer mon Compte</span>
+                  <span>Créer un compte</span>
                 </>
               ) : (
                 <>

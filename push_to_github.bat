@@ -31,7 +31,7 @@ echo.
 %GIT_CMD% init
 %GIT_CMD% remote set-url origin https://github.com/pistyl/immo-connect.git || %GIT_CMD% remote add origin https://github.com/pistyl/immo-connect.git
 %GIT_CMD% add .
-%GIT_CMD% commit -m "fix(auth): passage a 100% base de donnees Supabase pour les profils et suppression de localStorage"
+%GIT_CMD% commit -m "style(auth): mise a jour du texte du bouton d'inscription en 'Créer un compte'"
 %GIT_CMD% branch -M main
 %GIT_CMD% push -u origin main
 
